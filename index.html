@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sa" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Verified Sanskrit AI — Presenter Mode</title>
+  <title>कौटिलीय-अर्थशास्त्रम् — समकालीन-आर्थिक-समाधानानि (52nd AIOC Haridwar 2026)</title>
   
-  <!-- Modern Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- Typography (Asynchronous with robust offline system fallbacks) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Rozha+One&family=Yatra+One&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Rozha+One&family=Yatra+One&display=swap">
+  </noscript>
+
   <style>
-    /* CSS RESET */
+    /* CSS RESET & DESIGN TOKENS */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -21,37 +24,62 @@
     }
 
     :root {
-      --font-display: 'Cinzel', serif;
-      --font-body: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-      --transition-crossfade: 700ms cubic-bezier(0.16, 1, 0.3, 1);
+      --bg-base: #06080d;
+      --bg-surface: rgba(16, 21, 33, 0.75);
+      --bg-card: rgba(12, 17, 28, 0.82);
+      --border-card: rgba(212, 175, 55, 0.3);
+      --border-card-hover: rgba(212, 175, 55, 0.75);
+      
+      --gold-primary: #f0c05a;
+      --gold-bright: #ffd700;
+      --gold-muted: #c5a045;
+      --gold-glow: rgba(240, 192, 90, 0.35);
+
+      --img-brightness: 0.78;
+      --img-active-brightness: 0.86;
+
+      --terracotta: #e06d53;
+      --terracotta-glow: rgba(224, 109, 83, 0.3);
+      --emerald: #2ec4b6;
+      --emerald-glow: rgba(46, 196, 182, 0.3);
+      --crimson: #e63946;
+      --crimson-glow: rgba(230, 57, 70, 0.3);
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-shastra: #fef08a;
+
+      --font-display: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', 'Georgia', serif;
+      --font-sanskrit-title: 'Rozha One', 'Yatra One', 'Siddhanta', 'Kokila', 'Nirmala UI', 'Mangal', 'Georgia', serif;
+      --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-shloka: 'Yatra One', 'Rozha One', 'Tiro Devanagari Sanskrit', 'Siddhanta', 'Mangal', serif;
+
+      --transition-standard: 450ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #000000;
-      color: #ffffff;
+      background-color: var(--bg-base);
+      color: var(--text-main);
       font-family: var(--font-body);
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Auto-hide cursor when idle */
-    body.idle-cursor {
-      cursor: none;
-    }
-
-    /* MAIN VIEWPORT */
-    #viewport {
+    /* VIEWPORT CONTAINER (16:9 FIXED RATIO AUTO-CENTERED) */
+    #presentation-viewport {
       position: relative;
       width: 100vw;
       height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 20%, #151c2e 0%, #07090f 75%, #020305 100%);
       overflow: hidden;
-      background: #000;
     }
 
-    /* Subtle ambient floating stardust particles */
+    /* Dynamic Ambient Background Canvas for Floating Gold Stardust */
     #ambient-canvas {
       position: absolute;
       top: 0;
@@ -59,556 +87,2309 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 4;
-      opacity: 0.65;
-    }
-
-    /* STAGE CONTAINER */
-    #stage-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
       z-index: 1;
+      opacity: 0.55;
     }
 
-    /* Dual Stage Buffers for Flawless Seamless Crossfade */
-    .stage-layer {
+    /* THE SLIDE STAGE (Strict 16:9 Aspect Ratio) */
+    #slide-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 1920px;
+      max-height: 1080px;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      z-index: 2;
+      display: flex;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85);
+    }
+
+    /* INDIVIDUAL SLIDE (Stacked and switched via classes) */
+    .slide {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      padding: clamp(28px, 4vw, 56px) clamp(36px, 5.5vw, 84px);
+      display: flex;
+      flex-direction: column;
       opacity: 0;
       visibility: hidden;
-      overflow: hidden;
-      will-change: opacity, transform;
-      transition: opacity var(--transition-crossfade), transform var(--transition-crossfade);
-      transform: scale(1.02);
+      pointer-events: none;
+      transform: scale(0.97) translateY(12px);
+      transition: opacity var(--transition-standard), transform var(--transition-standard), visibility var(--transition-standard);
+      background-size: cover;
+      background-position: center;
     }
 
-    .stage-layer.active {
+    .slide.active {
       opacity: 1;
       visibility: visible;
-      transform: scale(1);
-      z-index: 2;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 5;
     }
 
-    .stage-layer.outgoing {
+    .slide.prev {
+      transform: scale(1.02) translateY(-14px);
       opacity: 0;
-      visibility: visible;
-      transform: scale(1.04);
-      z-index: 1;
+      visibility: hidden;
     }
 
-    .stage-layer img {
+    /* BACKGROUND ART & OVERLAYS - VIVID CINEMATIC VISIBILITY */
+    .slide-bg-media {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center;
-      display: block;
-      transform-origin: center center;
-      will-change: transform;
+      z-index: 0;
+      /* REDEFINED STYLE: Rich, luminous and vivid image representation */
+      filter: brightness(var(--img-brightness, 0.78)) contrast(1.08) saturate(1.22);
+      transform: scale(1.02);
+      transition: transform 14s cubic-bezier(0.25, 1, 0.5, 1), filter 0.5s ease, opacity 0.5s ease;
+      opacity: 0.96;
+      will-change: transform, filter;
+    }
+    .slide.active .slide-bg-media {
+      transform: scale(1.07);
+      filter: brightness(var(--img-active-brightness, 0.86)) contrast(1.1) saturate(1.26);
     }
 
-    /* LIVE EFFECT: KEN BURNS CONTINUOUS CAMERA MOTION */
-    .motion-zoom-in img {
-      animation: liveZoomIn 16s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
-    }
-    .motion-pan-right img {
-      animation: livePanRight 18s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
-    }
-    .motion-zoom-out img {
-      animation: liveZoomOut 16s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
-    }
-    .motion-pan-left img {
-      animation: livePanLeft 18s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
-    }
-    .motion-drift-up img {
-      animation: liveDriftUp 17s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
-    }
-    .motion-diagonal img {
-      animation: liveDiagonal 19s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
-    }
-
-    @keyframes liveZoomIn {
-      0% { transform: scale(1.0) translate(0, 0); }
-      100% { transform: scale(1.11) translate(-1.2%, -0.8%); }
-    }
-    @keyframes livePanRight {
-      0% { transform: scale(1.08) translate(-2%, 0.5%); }
-      100% { transform: scale(1.12) translate(2%, -0.5%); }
-    }
-    @keyframes liveZoomOut {
-      0% { transform: scale(1.14) translate(0, 1%); }
-      100% { transform: scale(1.02) translate(0, -0.8%); }
-    }
-    @keyframes livePanLeft {
-      0% { transform: scale(1.08) translate(2%, -0.5%); }
-      100% { transform: scale(1.12) translate(-2%, 0.5%); }
-    }
-    @keyframes liveDriftUp {
-      0% { transform: scale(1.05) translate(0, 1.8%); }
-      100% { transform: scale(1.11) translate(0, -1.8%); }
-    }
-    @keyframes liveDiagonal {
-      0% { transform: scale(1.06) translate(-1.5%, 1.2%); }
-      100% { transform: scale(1.12) translate(1.5%, -1.2%); }
-    }
-
-    /* Subtle Natural Vignette (Soft top gradient for uncompromised text contrast) */
-    .vignette-overlay {
+    /* REDEFINED BALANCED VIGNETTE: Keeps artwork visible while securing high text readability */
+    .slide-bg-gradient {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      z-index: 1;
+      background: 
+        radial-gradient(ellipse at 50% 45%, rgba(6, 8, 14, 0.16) 0%, rgba(6, 8, 14, 0.48) 65%, rgba(3, 4, 8, 0.82) 100%),
+        linear-gradient(to top, rgba(3, 4, 8, 0.88) 0%, rgba(3, 4, 8, 0.12) 18%, rgba(3, 4, 8, 0.12) 82%, rgba(3, 4, 8, 0.78) 100%);
       pointer-events: none;
-      z-index: 3;
-      background: radial-gradient(circle at center, transparent 48%, rgba(0, 0, 0, 0.3) 85%, rgba(0, 0, 0, 0.7) 100%),
-                  linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.35) 14%, transparent 25%);
+      transition: background 0.4s ease;
     }
 
-    /* -------------------------------------------------------------
-       PLAIN TEXT LAYER (SINGLE LINE AT TOP MIDDLE, ZERO BOX, UNCOVERED)
-       ------------------------------------------------------------- */
-    #text-overlay {
+    /* ART SPOTLIGHT MODE: Super-vivid image focus mode */
+    body.art-spotlight .slide-bg-media {
+      filter: brightness(0.96) contrast(1.06) saturate(1.3) !important;
+      opacity: 1 !important;
+    }
+    body.art-spotlight .slide-bg-gradient {
+      background: 
+        radial-gradient(ellipse at 50% 45%, rgba(6, 8, 14, 0.05) 0%, rgba(6, 8, 14, 0.28) 65%, rgba(3, 4, 8, 0.65) 100%),
+        linear-gradient(to top, rgba(3, 4, 8, 0.75) 0%, transparent 25%, transparent 75%, rgba(3, 4, 8, 0.55) 100%) !important;
+    }
+    body.art-spotlight .glass-card {
+      background: rgba(8, 12, 22, 0.68) !important;
+      backdrop-filter: blur(14px) !important;
+    }
+
+    /* HERO GLASS PANEL (Slide 1 and Slide 16) */
+    .hero-glass-panel {
+      background: rgba(8, 12, 22, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      border-radius: 24px;
+      padding: clamp(24px, 3.2vw, 44px) clamp(30px, 4.5vw, 60px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 45px rgba(240, 192, 90, 0.16);
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+
+    /* IN-CARD ILLUSTRATION / FIGURE EMBEDS */
+    .card-media-figure {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(212, 175, 55, 0.38);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+      margin: 10px 0 14px 0;
+      height: 155px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .card-media-figure:hover {
+      border-color: var(--gold-bright);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(240, 192, 90, 0.25);
+    }
+    .card-media-figure img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .card-media-figure:hover img {
+      transform: scale(1.06);
+    }
+    .card-media-tag {
       position: absolute;
-      top: 42px;
+      bottom: 8px;
+      right: 10px;
+      background: rgba(5, 7, 12, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--gold-primary);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* FULLSCREEN ARTWORK LIGHTBOX MODAL */
+    #artwork-lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(3, 4, 8, 0.96);
+      backdrop-filter: blur(25px);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #artwork-lightbox.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .lightbox-img-box {
+      max-width: 92vw;
+      max-height: 82vh;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 50px rgba(240, 192, 90, 0.2);
+    }
+    .lightbox-img-box img {
+      width: 100%;
+      height: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      display: block;
+    }
+    .lightbox-caption {
+      margin-top: 16px;
+      text-align: center;
+      font-family: var(--font-display);
+      color: var(--gold-bright);
+      font-size: 1.15rem;
+      letter-spacing: 0.05em;
+    }
+    .lightbox-close-btn {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: #fff;
+      font-size: 1.4rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .lightbox-close-btn:hover {
+      background: rgba(240, 192, 90, 0.3);
+      color: var(--gold-bright);
+      transform: scale(1.1);
+    }
+
+    /* SLIDE CONTENT WRAPPER */
+    .slide-content {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* TOP SLIDE HEADER */
+    .slide-header {
+      margin-bottom: clamp(14px, 2.2vw, 28px);
+    }
+
+    .slide-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .slide-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(240, 192, 90, 0.12);
+      color: var(--gold-primary);
+      border: 1px solid rgba(240, 192, 90, 0.35);
+      backdrop-filter: blur(8px);
+    }
+
+    .slide-pill.problem {
+      background: rgba(230, 57, 70, 0.14);
+      color: #ff6b6b;
+      border-color: rgba(230, 57, 70, 0.4);
+    }
+
+    .slide-pill.solution {
+      background: rgba(46, 196, 182, 0.14);
+      color: #48cae4;
+      border-color: rgba(46, 196, 182, 0.4);
+    }
+
+    .slide-chapter-tag {
+      font-size: clamp(0.72rem, 0.9vw, 0.85rem);
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .slide-title-sanskrit {
+      font-family: var(--font-sanskrit-title);
+      font-size: clamp(1.4rem, 2.3vw, 2.5rem);
+      font-weight: 400;
+      color: var(--gold-bright);
+      line-height: 1.25;
+      text-shadow: 0 2px 14px rgba(240, 192, 90, 0.35);
+      margin-bottom: 4px;
+    }
+
+    .slide-title-english {
+      font-family: var(--font-display);
+      font-size: clamp(0.95rem, 1.4vw, 1.35rem);
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+    }
+
+    /* SLIDE BODY (GRID & FLEX SYSTEMS) */
+    .slide-body {
+      flex: 1;
+      display: grid;
+      align-items: center;
+      gap: clamp(16px, 2.5vw, 36px);
+      min-height: 0;
+    }
+
+    .grid-2col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-2col-asym {
+      grid-template-columns: 1.15fr 0.85fr;
+    }
+
+    .grid-3col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* GLASS CARDS - REDEFINED FOR MAXIMUM CLARITY OVER VIVID ARTWORK */
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: clamp(16px, 2vw, 26px);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: var(--border-card-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.75), 0 0 24px rgba(240, 192, 90, 0.18);
+    }
+
+    .glass-card.highlight {
+      border-color: rgba(240, 192, 90, 0.55);
+      background: linear-gradient(135deg, rgba(20, 30, 52, 0.88) 0%, rgba(13, 19, 34, 0.92) 100%);
+    }
+
+    .glass-card.danger {
+      border-color: rgba(230, 57, 70, 0.45);
+      background: linear-gradient(135deg, rgba(38, 14, 20, 0.88) 0%, rgba(20, 9, 13, 0.92) 100%);
+    }
+
+    .glass-card.success {
+      border-color: rgba(46, 196, 182, 0.45);
+      background: linear-gradient(135deg, rgba(12, 32, 36, 0.88) 0%, rgba(7, 20, 23, 0.92) 100%);
+    }
+
+    .card-title {
+      font-size: clamp(0.95rem, 1.25vw, 1.2rem);
+      font-weight: 700;
+      color: var(--gold-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title .icon {
+      font-size: 1.25em;
+    }
+
+    /* SHASTRA CALLOUT BOX (Special styling for Sanskrit Shlokas) */
+    .shastra-box {
+      background: linear-gradient(135deg, rgba(240, 192, 90, 0.08) 0%, rgba(180, 140, 40, 0.03) 100%);
+      border-left: 4px solid var(--gold-bright);
+      border-radius: 0 12px 12px 0;
+      padding: clamp(12px, 1.6vw, 20px);
+      margin: 12px 0;
+    }
+
+    .shastra-text {
+      font-family: var(--font-shloka);
+      font-size: clamp(0.95rem, 1.3vw, 1.25rem);
+      color: var(--text-shastra);
+      line-height: 1.55;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+      margin-bottom: 6px;
+    }
+
+    .shastra-ref {
+      font-size: clamp(0.75rem, 0.9vw, 0.88rem);
+      color: var(--gold-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* BULLET LISTS & METRICS */
+    .point-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 1.2vw, 14px);
+    }
+
+    .point-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+      line-height: 1.5;
+      color: var(--text-main);
+    }
+
+    .point-bullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold-bright);
+      margin-top: 8px;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    .point-bullet.danger {
+      background: var(--crimson);
+      box-shadow: 0 0 10px var(--crimson-glow);
+    }
+
+    .point-bullet.success {
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald-glow);
+    }
+
+    /* STAT / METRIC HERO CALLOUT */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .metric-tile {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 2.2vw, 2.2rem);
+      font-weight: 800;
+      color: var(--gold-bright);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .metric-value.danger { color: #ff6b6b; }
+    .metric-value.success { color: #48cae4; }
+
+    .metric-label {
+      font-size: clamp(0.7rem, 0.85vw, 0.8rem);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* SLIDE FOOTER METADATA */
+    .slide-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: clamp(10px, 1.5vw, 18px);
+      border-top: 1px solid rgba(212, 175, 55, 0.15);
+      font-size: clamp(0.7rem, 0.85vw, 0.82rem);
+      color: var(--text-muted);
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .footer-author {
+      color: var(--gold-primary);
+      font-weight: 600;
+    }
+
+    /* AUDIO SPEAKER LIVE NOTE TICKER (Matches User's Speech!) */
+    .audio-note-box {
+      background: rgba(240, 192, 90, 0.06);
+      border: 1px solid rgba(240, 192, 90, 0.2);
+      border-radius: 8px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: clamp(0.72rem, 0.88vw, 0.84rem);
+      color: #e2e8f0;
+      max-width: 70%;
+    }
+
+    .audio-note-box .mic-icon {
+      color: var(--gold-bright);
+      font-size: 1.1em;
+      animation: pulseMic 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseMic {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+
+    /* FLOATING PRESENTATION CONTROLLER UI */
+    #pres-controls {
+      position: fixed;
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
-      width: 90%;
-      max-width: 1400px;
-      text-align: center;
-      z-index: 10;
-      pointer-events: none;
-      transition: opacity 280ms ease, transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      background: rgba(10, 14, 24, 0.85);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 999px;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
-    #text-overlay.text-animating {
+    #pres-controls.hidden {
       opacity: 0;
-      transform: translateX(-50%) translateY(-8px);
+      transform: translateX(-50%) translateY(30px);
+      pointer-events: none;
     }
 
-    .plain-heading {
+    .ctrl-btn {
+      background: transparent;
+      border: none;
+      color: #e2e8f0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(240, 192, 90, 0.2);
+      color: var(--gold-bright);
+      transform: scale(1.1);
+    }
+
+    .ctrl-counter {
       font-family: var(--font-display);
-      font-size: clamp(1.35rem, 2.3vw, 2.25rem);
+      font-size: 0.88rem;
       font-weight: 700;
-      line-height: 1.25;
-      color: #ffffff;
-      margin: 0;
-      letter-spacing: 0.02em;
-      text-align: center;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 4px 28px rgba(0, 0, 0, 0.9), 0 0 5px rgba(0, 0, 0, 1);
+      color: var(--gold-primary);
+      padding: 0 8px;
+      letter-spacing: 0.05em;
     }
 
-    #presenter-toast {
-      display: none !important;
+    /* TOP PROGRESS BAR */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #d4af37, #ffd700, #2ec4b6);
+      box-shadow: 0 0 12px rgba(240, 192, 90, 0.8);
+      z-index: 101;
+      transition: width 0.35s ease;
+      width: 6.25%;
     }
 
-    /* Clickable screen zones for presenter clickers & touch */
-    .click-zone {
+    /* INVISIBLE SCREEN CLICK ZONES */
+    .click-target {
       position: absolute;
       top: 0;
       bottom: 0;
-      z-index: 8;
+      z-index: 10;
       cursor: pointer;
     }
-    #click-zone-left {
+    #click-left { left: 0; width: 20%; }
+    #click-right { right: 0; width: 80%; }
+
+    /* THUMBNAILS MODAL DRAWER */
+    #thumbs-modal {
+      position: fixed;
+      top: 0;
       left: 0;
-      width: 25%;
-    }
-    #click-zone-right {
-      right: 0;
-      width: 75%;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(5, 7, 12, 0.94);
+      backdrop-filter: blur(20px);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      padding: 40px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
     }
 
-    @media (max-width: 768px) {
-      #text-overlay {
-        top: 22px;
-        width: 94%;
+    #thumbs-modal.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .thumbs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .thumbs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .thumb-card {
+      background: rgba(20, 27, 45, 0.8);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: 10px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .thumb-card:hover, .thumb-card.active {
+      border-color: var(--gold-bright);
+      background: rgba(40, 52, 85, 0.9);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(240, 192, 90, 0.25);
+    }
+
+    .thumb-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold-primary);
+    }
+
+    .thumb-title {
+      font-size: 0.85rem;
+      color: #fff;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    /* PRESENTER NOTES DRAWER */
+    #notes-drawer {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: min(420px, 90vw);
+      height: 100vh;
+      background: rgba(10, 14, 24, 0.96);
+      border-left: 1px solid var(--border-card-hover);
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(25px);
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      padding: 28px;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #notes-drawer.open {
+      transform: translateX(0);
+    }
+
+    .notes-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--gold-bright);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notes-content {
+      flex: 1;
+      overflow-y: auto;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .notes-quote {
+      background: rgba(240, 192, 90, 0.1);
+      border-left: 3px solid var(--gold-bright);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: var(--text-shastra);
+    }
+
+    /* RESPONSIVE SCALING */
+    @media (max-width: 1024px) {
+      .grid-2col, .grid-2col-asym, .grid-3col {
+        grid-template-columns: 1fr;
+        gap: 14px;
       }
-      .plain-heading {
-        font-size: 1.2rem;
+      .metric-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
-      #presenter-toast {
-        bottom: 20px;
-        right: 20px;
+      .audio-note-box {
+        display: none;
       }
     }
   </style>
 </head>
 <body>
 
-  <div id="viewport">
+  <!-- Top Progress Bar -->
+  <div id="progress-bar"></div>
+
+  <!-- Main 16:9 Presentation Viewport -->
+  <div id="presentation-viewport">
     
-    <!-- Ambient Golden Dust & Mist Particles -->
+    <!-- Ambient Floating Gold Dust Particles -->
     <canvas id="ambient-canvas"></canvas>
 
-    <!-- Dual Stage Buffers for Seamless Image Crossfade & Ken Burns Motion -->
-    <div id="stage-container">
-      <div id="stage-layer-a" class="stage-layer active">
-        <img id="img-layer-a" src="" alt="Presentation Visual">
-      </div>
-      <div id="stage-layer-b" class="stage-layer">
-        <img id="img-layer-b" src="" alt="Presentation Visual">
-      </div>
+    <!-- Invisible Click Target Zones for Navigating -->
+    <div id="click-left" class="click-target" title="Previous Slide (← / PageUp)"></div>
+    <div id="click-right" class="click-target" title="Next Slide (→ / Space / PageDown)"></div>
+
+    <!-- STAGE CONTAINER (All 16 Slides) -->
+    <div id="slide-stage">
+
+      <!-- ==========================================
+           SLIDE 1: TITLE SLIDE & INVOCATION
+           ========================================== -->
+      <section class="slide active" data-slide="1" data-notes="Opening invocation: Salutations to Saraswati, Chair Prof. Brajkishore Swain, and assembled scholars. Announcing paper title on Kautilya's evergreen solutions to modern economic crises.">
+        <img class="slide-bg-media" src="images/kautilya_title.jpg" alt="Kautilya Arthashastra Title">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content" style="justify-content: center; text-align: center; align-items: center;">
+          <div class="hero-glass-panel">
+            <div class="slide-badge-row" style="justify-content: center; margin-bottom: 16px;">
+              <span class="slide-pill">52nd AIOC Haridwar 2026</span>
+              <span class="slide-chapter-tag">धर्मशास्त्रम् तथा अर्थशास्त्रम् • पतञ्जलि-विश्वविद्यालयः</span>
+              <span class="slide-pill" onclick="openLightbox('images/kautilya_title.jpg', 'आचार्य कौटिल्यः (चाणक्यः) — The Sage Architect of Yogakshema')" style="cursor: pointer; background: rgba(240, 192, 90, 0.22); border-color: rgba(240, 192, 90, 0.6);" title="Click to view full background artwork in high resolution">🖼️ View Artwork</span>
+            </div>
+
+            <h1 class="slide-title-sanskrit" style="font-size: clamp(2rem, 3.4vw, 3.6rem); margin-bottom: 14px; line-height: 1.2;">
+              कौटिल्येन कल्पितानि चतुर-व्यावहारिक-शाश्वत-समाधानानि
+            </h1>
+            <p style="font-family: var(--font-sanskrit-title); font-size: clamp(1.2rem, 2vw, 2rem); color: var(--text-main); margin-bottom: 18px;">
+              — समकालीन-आर्थिक-सङ्कटानि नापूर्वाणि —
+            </p>
+
+            <div class="shastra-box" style="border-left: none; border-bottom: 2px solid var(--gold-bright); border-top: 2px solid var(--gold-bright); border-radius: 0; display: inline-block; padding: 12px 32px; margin-bottom: 24px;">
+              <p class="slide-title-english" style="font-size: clamp(1.1rem, 1.6vw, 1.6rem); color: var(--gold-primary);">
+                The Economic Problems We Are Struggling With Today Are Not New:
+              </p>
+              <p style="font-size: clamp(0.9rem, 1.2vw, 1.15rem); color: var(--text-muted); margin-top: 4px;">
+                Kautilya's Clever and Practical Rules to Fix Modern Economic Crises
+              </p>
+            </div>
+
+            <div style="display: flex; justify-content: center; font-size: clamp(0.9rem, 1.2vw, 1.15rem); color: #cbd5e1;">
+              <div>
+                <span style="color: var(--gold-primary); font-weight: 700;">प्रस्तुतकर्ता (Author):</span> प्रवीणः (Praveen)<br>
+                <span style="font-size: 0.9em; color: var(--text-muted);">राष्ट्रिय-संस्कृत-विश्वविद्यालयः, तिरुपतिः (National Sanskrit University, Tirupati)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <div class="footer-left">
+            <span>५२ तमम् अखिलभारतीय-प्राच्यविद्या-सम्मेलनम्</span>
+            <span>•</span>
+            <span>University of Patanjali, Haridwar</span>
+          </div>
+          <div class="audio-note-box">
+            <span class="mic-icon">🎙️</span>
+            <span>"सभासरस्वत्यै नमः, अध्यक्षपादेभ्यः नमो नमः, सर्वेभ्यः श्रोतृभ्यश्च नमः..."</span>
+          </div>
+          <div class="footer-right">स्लाईड् ०१ / १६</div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 2: INTRODUCTION & THE POLY-CRISIS
+           ========================================== -->
+      <section class="slide" data-slide="2" data-notes="Modern governments introduce endless fiscal and monetary policies, yet inflation, debt, and welfare leakages persist. Kautilya's Arthashastra is not dead history, but an empirical institutional science of Yogakshema.">
+        <img class="slide-bg-media" src="images/kautilya_title.jpg" alt="Ancient Economic Science">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill">§१. विषय-प्रवेशः</span>
+              <span class="slide-chapter-tag">Paradigm Comparison • 4th Century BCE to 21st Century</span>
+            </div>
+            <h2 class="slide-title-sanskrit">आधुनिक-आर्थिक-सङ्कटानि कौटिलीय-दृष्टिश्च</h2>
+            <h3 class="slide-title-english">The Modern Economic Poly-Crisis & Arthashastra’s Timeless Architecture</h3>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <!-- Modern Problem Column -->
+            <div class="glass-card danger">
+              <div class="card-title">
+                <span class="icon">⚠️</span> आधुनिक-अर्थव्यवस्थायाः पञ्च-सङ्कटानि (Modern Structural Failures)
+              </div>
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Chronic Fiat Inflation (मुद्रास्फीतिः):</strong> Purchasing power of the working class constantly degraded via artificial inflation targets.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Brand Greedflation (मनमानी-मूल्यवृद्धिः):</strong> Corporate cartels price goods with 1,000%+ margins detached from physical production costs.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Sovereign Debt Spirals (ऋण-भारः):</strong> Governments fund growth through compounded multi-lateral debt, forcing regressive indirect taxes on the poor.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Procurement Leakage & Bribery (उत्कोचः / लञ्च):</strong> Welfare funds embezzled by bureaucratic intermediaries before reaching beneficiaries.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Agrarian Intermediary Exploitation (मध्यवर्ति-शोषणम्):</strong> Farmers receive pennies while middlemen capture exponential speculative margins.</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Kautilyan Remedy Column -->
+            <div class="glass-card success">
+              <div class="card-title">
+                <span class="icon">🏛️</span> कौटिलीय-संस्थागत-समाधानानि (The Kautilyan Institutional Model)
+              </div>
+              <div class="shastra-box">
+                <p class="shastra-text">"तस्मान्नित्योत्थितो राजा कुर्यादर्थानुशासनम्।<br>अर्थस्य मूलमुत्थानम् अनर्थस्य विपर्ययः॥"</p>
+                <span class="shastra-ref">अर्थशास्त्रम् १.१९.३५ (Utthana: Continuous Productive Enterprise)</span>
+              </div>
+              <ul class="point-list" style="margin-top: 10px;">
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Not mere historical theory:</strong> An empirical, crisis-tested institutional playbook developed by Acharya Chanakya.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Yogakshema (योगक्षेम):</strong> Synthesis of productive capital creation (Yoga) and universal equitable social security (Kshema).</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Enforceable Shastric Rules:</strong> Transparent cost-plus math, anti-cartel fines, and continuous triple forensic auditing.</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>National Sanskrit University, Tirupati</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"आधुनिक-सर्वकारेण अनेके नियमाः विधीयन्ते, तथापि कौटिल्य-नियमानां अध्ययने सति उत्कृष्टतया परिहृताः भवन्ति..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् ०२ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 3: PROBLEM 1: INFLATION TRAP
+           ========================================== -->
+      <section class="slide" data-slide="3" data-notes="Modern Central Banks target 5-6% annual inflation to force people to spend money rather than keep it at home. But this destroys purchasing power: 25k salary becomes inadequate at 50k, crushing the middle class and poor.">
+        <img class="slide-bg-media" src="images/kautilya_inflation.jpg" alt="Modern Inflation Trap">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill problem">समस्या १ • Problem I</span>
+              <span class="slide-chapter-tag">Monetary Policy & The Cantillon Distortion</span>
+            </div>
+            <h2 class="slide-title-sanskrit">मुद्रास्फीतेः दुश्चक्रं जनपीडा च</h2>
+            <h3 class="slide-title-english">The Modern Inflation Trap & Systematic Purchasing Power Erosion</h3>
+          </div>
+
+          <div class="slide-body grid-2col-asym">
+            <div class="glass-card danger">
+              <div class="card-title"><span class="icon">📉</span> The Modern Central Bank Dogma</div>
+              <p style="font-size: clamp(0.85rem, 1.05vw, 1rem); line-height: 1.6; margin-bottom: 12px; color: #f1f5f9;">
+                Modern Keynesian and Central Banking models deliberately orchestrate <span style="color: #ff6b6b; font-weight: 700;">5% to 6% annual inflation</span> under the pretext that rising prices force citizens to spend rather than hold idle cash, thereby keeping the economic cycle moving.
+              </p>
+              
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>The Lethal Consequence:</strong> A household earning ₹25,000 today requires ₹50,000 in a few years just to purchase the same basket of food and shelter.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Stealth Tax on Working Masses:</strong> Non-leveraged wage earners watch their hard-earned lifetime savings evaporate silently through fiat debasement.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Corporate Leverage Subsidy:</strong> Ultra-wealthy corporations borrow cheap fiat, acquire physical assets, and repay loans with depreciated currency.</div>
+                </li>
+              </ul>
+
+              <div class="metric-grid">
+                <div class="metric-tile">
+                  <div class="metric-value danger">5% - 8%</div>
+                  <div class="metric-label">Annual Purchasing Power Loss</div>
+                </div>
+                <div class="metric-tile">
+                  <div class="metric-value danger">2× Cost</div>
+                  <div class="metric-label">Cost of Living Doubling Every 9-12 Yrs</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Conceptual Visual Card with In-Slide Artwork -->
+            <div class="glass-card" style="display: flex; flex-direction: column; justify-content: center; text-align: center;">
+              <div class="card-media-figure" onclick="openLightbox('images/kautilya_inflation.jpg', 'मुद्रास्फीति-सङ्कटः — Treasury Depletion & Inflationary Cycle')" title="Click to view full painting">
+                <img src="images/kautilya_inflation.jpg" alt="Inflation Illustration">
+                <div class="card-media-tag">🔍 View Painting</div>
+              </div>
+              <h4 style="font-family: var(--font-display); color: #ff6b6b; font-size: 1.15rem; margin-bottom: 6px;">The Inflationary Cycle</h4>
+              <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px;">
+                "अनेन सामान्य-जनानां महान् क्लेशः वर्तते। यः अधुना २५,००० अर्जयति, सः पश्चात् ५०,००० अर्जयति चेदपि जीवनं क्लेशमयम्..."
+              </p>
+              <div style="background: rgba(230, 57, 70, 0.15); border: 1px dashed rgba(230, 57, 70, 0.4); border-radius: 8px; padding: 8px; font-size: 0.82rem; color: #fca5a5;">
+                Central banks print fiat ➔ Prices surge ➔ Common people suffer ➔ False stimulus
+              </div>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Topic: Inflation Dilemma (मुद्रास्फीति-दोषः)</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"प्रथमः विचारः—इन्फ्लेशन इति। सर्वकारेण ५-६% इन्फ्लेशन क्रियते येन जनाः अधुना एव क्रीणीयुः..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् ०३ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 4: SOLUTION 1: SOUND MONEY & PRODUCTIVE VELOCITY
+           ========================================== -->
+      <section class="slide" data-slide="4" data-notes="Kautilya's genius: Do not destroy the currency's value to force circulation. Instead, strictly penalize keeping productive assets and land idle. If agricultural land is left uncultivated, penalize the owner or reassign it.">
+        <img class="slide-bg-media" src="images/kautilya_inflation.jpg" alt="Sound Money & Velocity">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill solution">समाधानम् १ • Solution I</span>
+              <span class="slide-chapter-tag">Sound Money & Enforced Asset Velocity • Book II.1 & II.12</span>
+            </div>
+            <h2 class="slide-title-sanskrit">चलन-अवमूल्यनं विना सक्रिय-उत्पादकता</h2>
+            <h3 class="slide-title-english">Capital Velocity via Institutional Enforcement, Not Currency Debasement</h3>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="glass-card success">
+              <div class="card-title"><span class="icon">⚖️</span> The Kautilyan Counter-Strategy</div>
+              
+              <div class="shastra-box">
+                <p class="shastra-text">"अकृषतामाच्छिद्यान्येभ्यः प्रयच्छेत्,<br>ग्रामभृतकवैदेहका वा कृषेयुः।"</p>
+                <span class="shastra-ref">अर्थशास्त्रम् २.१.१० (Confiscation & Reallocation of Idle Assets)</span>
+              </div>
+
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Compulsory Asset Circulation:</strong> No landowner or merchant was permitted to hoard productive land or capital in unproductive stagnation.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Strict Penalties for Idle Holdings:</strong> If fertile land was held idle without cultivation, the landowner was fined or the land was transferred to industrious workers.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Velocity Without Debasement:</strong> Capital flowed through the real economy driven by legal productivity mandates, keeping the silver Pana coin 100% sound and stable.</div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">🪙</span> Coinage Integrity & Zero-Debasement Mint</div>
+              
+              <ul class="point-list" style="margin-bottom: 14px;">
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Laksanadhyaksha & Rupadarshaka (२.१२.२४):</strong> State Mint Master and Coin Examiner ensured strict purity standards for every silver Pana.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Severe Counterfeiting Sanctions (४.१.४८):</strong> Anyone adulterating precious metal coins faced capital punishment: <em>"कूट-रूप-कारिणं च घातयेत्"</em>.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Emergency Progressive Levies (Pranaya - ५.२.१६):</strong> In crisis, the state raised funds via transparent one-time surcharges on the rich, never through stealth currency printing!</div>
+                </li>
+              </ul>
+
+              <div class="metric-grid">
+                <div class="metric-tile">
+                  <div class="metric-value success">0%</div>
+                  <div class="metric-label">Targeted Currency Debasement</div>
+                </div>
+                <div class="metric-tile">
+                  <div class="metric-value success">100%</div>
+                  <div class="metric-label">Productive Asset Utilization</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Framework: Sound Money & Utthana Doctrine</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"कौटिल्य-परिहारः—यः कोऽपि धनं स्थिरताया एकत्र न स्थापयेत्, आर्थिक-व्यवस्थायाम् आनयेदेव इति नियमः आसीत्..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् ०४ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 5: PROBLEM 2: ARBITRARY BRAND GOUGING
+           ========================================== -->
+      <section class="slide" data-slide="5" data-notes="Look at modern brand inflation: A leather bag or shirt costs 200-500 Rs in raw materials and labor to manufacture, yet sells for 1 Lakh to 5 Lakh Rs just because of a brand tag! Is it made of gold? This is unconstrained greedflation.">
+        <img class="slide-bg-media" src="images/kautilya_market.jpg" alt="Brand Inflation & Greedflation">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill problem">समस्या २ • Problem II</span>
+              <span class="slide-chapter-tag">Market Exploitation & Corporate Greedflation</span>
+            </div>
+            <h2 class="slide-title-sanskrit">'ब्रान्डेड'-शोषणं मनमानी-मूल्यवृद्धिः च</h2>
+            <h3 class="slide-title-english">Arbitrary Brand Gouging, Luxury Markups & Corporate Greedflation</h3>
+          </div>
+
+          <div class="slide-body grid-2col-asym">
+            <div class="glass-card danger">
+              <div class="card-title"><span class="icon">🏷️</span> The Illusion of "Brand" Arbitrage</div>
+              <p style="font-size: clamp(0.85rem, 1.05vw, 1rem); line-height: 1.6; margin-bottom: 14px; color: #f1f5f9;">
+                In the modern market, prices are completely decoupled from physical production realities. Modern oligopolies manufacture artificial brand prestige to extract predatory super-normal profits.
+              </p>
+
+              <div class="point-list">
+                <div class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>The ₹5 Lakh Handbag Fallacy:</strong> A handbag costing ₹200 to ₹500 in materials and labor is marked up to ₹1,00,000 or ₹5,00,000 under a luxury brand label.</div>
+                </div>
+                <div class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Was It Forged in Solid Gold?</strong> No! Consumers are manipulated into believing that higher prices equate to superior quality, while corporations extract unearned economic rents.</div>
+                </div>
+                <div class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Zero Public Regulatory Defense:</strong> Modern deregulation leaves consumers completely unprotected against cartel markups, hidden shrinkage (shrinkflation), and speculative spikes.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mathematical Contrast Card with In-Slide Artwork -->
+            <div class="glass-card highlight" style="text-align: center;">
+              <div class="card-media-figure" onclick="openLightbox('images/kautilya_market.jpg', 'आपण-नियमनम् — Ancient Market & Fair Commerce Oversight')" title="Click to view full painting">
+                <img src="images/kautilya_market.jpg" alt="Marketplace Illustration">
+                <div class="card-media-tag">🔍 View Marketplace</div>
+              </div>
+              <h4 style="font-family: var(--font-display); color: var(--gold-bright); font-size: 1.1rem; margin-bottom: 8px;">The Anatomy of Price Gouging</h4>
+              
+              <div style="background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 10px; margin-bottom: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Physical Production Cost</div>
+                <div style="font-size: 1.4rem; font-weight: 800; color: #38bdf8;">₹ 200 – ₹ 500</div>
+              </div>
+
+              <div style="font-size: 1.1rem; color: #ff6b6b; margin: 2px 0;">⬇️ 1,000× Price Distortion</div>
+
+              <div style="background: rgba(230, 57, 70, 0.15); border-radius: 10px; padding: 10px; border: 1px solid rgba(230, 57, 70, 0.35);">
+                <div style="font-size: 0.8rem; color: #fca5a5;">Modern "Branded" Retail Price</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #ff6b6b;">₹ 1,00,000 – ₹ 5,00,000</div>
+              </div>
+              
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
+                "किम् सुवर्णेन निर्माणं कुर्वन्ति वा? ना! तदपि सामान्यतया २०० वा ५०० व्ययीकृत्य निर्मितमेव..."
+              </p>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Focus: Arbitrary Pricing & Greedflation</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"एकैकस्यापि वस्तुनः... एकं स्यूतं वा शार्ट् वा शत-रूप्यकात् पञ्च-लक्ष-रूप्यकाणि यावत् विक्रयणं कुर्वन्ति..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् ०५ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 6: SOLUTION 2: 3-FACTOR COST-PLUS PRICING
+           ========================================== -->
+      <section class="slide" data-slide="6" data-notes="Kautilya established a scientific pricing formula: Production cost + Transport + Insurance/Tolls + Statutory profit cap of 5% on domestic and 10% on imported goods. Anyone colluding or gouging was fined 1,000 Panas!">
+        <img class="slide-bg-media" src="images/kautilya_market.jpg" alt="Kautilyan Market Regulation">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill solution">समाधानम् २ • Solution II</span>
+              <span class="slide-chapter-tag">Fair Market Algorithm • Book IV.2.19 & IV.2.28</span>
+            </div>
+            <h2 class="slide-title-sanskrit">त्रिविध-व्यय-आधारितं मूल्यं लाभ-सीमा च</h2>
+            <h3 class="slide-title-english">The 3-Factor Cost-Plus Pricing Algorithm & Statutory Profit Caps</h3>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <!-- 3-Factor Formula Card -->
+            <div class="glass-card success">
+              <div class="card-title"><span class="icon">📐</span> The Kautilyan Fair Pricing Equation</div>
+              
+              <div style="background: rgba(0, 0, 0, 0.45); border: 1px solid var(--border-card); border-radius: 12px; padding: 14px; margin: 12px 0;">
+                <div style="font-family: var(--font-display); font-size: clamp(0.95rem, 1.25vw, 1.25rem); color: var(--gold-bright); text-align: center; line-height: 1.4;">
+                  Fair Retail Price = [ C<sub style="font-size: 0.7em;">prod</sub> + C<sub style="font-size: 0.7em;">trans</sub> + C<sub style="font-size: 0.7em;">ins</sub> ] + Statutory Profit Cap
+                </div>
+              </div>
+
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>1. Cost of Production (उत्पादन-व्ययः):</strong> True certified costs of raw materials, labor, and craftsmanship.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>2. Transport & Freight (वाहन-शुल्कम्):</strong> Legitimate transit costs of bringing goods from farms/mines to markets.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>3. Tolls & Transit Insurance (वर्तनी / आतिवाहिकम्):</strong> Border duties and government-guaranteed transit insurance against theft.</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Statutory Caps & Anti-Cartel Card -->
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">📜</span> Legal Profit Limits & Anti-Cartel Fines</div>
+              
+              <div class="shastra-box">
+                <p class="shastra-text">"वैदेहकानां वा संभूय पण्यमवरुन्धताम् अनर्घेण विक्रीणतां वा सहस्रं दण्डः।"</p>
+                <span class="shastra-ref">अर्थशास्त्रम् ४.२.१९ (1,000 Pana Anti-Cartel Collusion Fine)</span>
+              </div>
+
+              <div class="metric-grid" style="margin-bottom: 12px;">
+                <div class="metric-tile" style="border-color: rgba(46, 196, 182, 0.3);">
+                  <div class="metric-value success">5% Cap</div>
+                  <div class="metric-label">Domestic Commodities (स्वदेशीये)</div>
+                </div>
+                <div class="metric-tile" style="border-color: rgba(46, 196, 182, 0.3);">
+                  <div class="metric-value success">10% Cap</div>
+                  <div class="metric-label">Imported Goods (परदेशीये आयाते)</div>
+                </div>
+              </div>
+
+              <p style="font-size: 0.86rem; color: var(--text-muted); line-height: 1.5;">
+                Panyadhyaksha (Superintendent of Commerce) strictly enforced that every shopkeeper adhere to verified pricing. Both predatory undercutting and luxury price gouging were punishable by law.
+              </p>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Panyadhyaksha & Sansthadhyaksha Oversight</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"उत्पादनं + ट्रान्स्पोर्ट् + इन्शुरेन्स् सर्वं मेलयित्वा तदुपरि ५% वा १०% लाभः निधाय व्यापारं कर्तुं शक्नोति..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् ०६ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 7: PROBLEM 3: SOVEREIGN DEBT SPIRALS
+           ========================================== -->
+      <section class="slide" data-slide="7" data-notes="Modern nations develop infrastructure entirely through compounding debt—borrowing from the World Bank and external bondholders. To service this debt, they levy heavy indirect taxes (GST, VAT) on common citizens.">
+        <img class="slide-bg-media" src="images/kautilya_inflation.jpg" alt="Sovereign Debt Spirals">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill problem">समस्या ३ • Problem III</span>
+              <span class="slide-chapter-tag">Fiscal Policy & Regressive Taxation</span>
+            </div>
+            <h2 class="slide-title-sanskrit">सार्वभौम-ऋण-सङ्कटः प्रतिगामी-करभारश्च</h2>
+            <h3 class="slide-title-english">Sovereign Debt Traps, Compounded Deficits & Regressive Consumption Taxes</h3>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="glass-card danger">
+              <div class="card-title"><span class="icon">⛓️</span> The Modern Sovereign Debt Cycle</div>
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Development Driven Solely by Debt:</strong> Modern national infrastructure is mortgaged to external financiers, international institutions, and commercial lenders.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Compounding Interest Cannibalization:</strong> Up to 20% to 35% of national budgets are squandered simply paying interest on past sovereign debt.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Inter-Generational Impoverishment:</strong> Future generations are born into permanent fiscal servitude before they even enter the workforce.</div>
+                </li>
+              </ul>
+
+              <div class="metric-grid">
+                <div class="metric-tile">
+                  <div class="metric-value danger">80% - 120%</div>
+                  <div class="metric-label">Debt-to-GDP in Major Economies</div>
+                </div>
+                <div class="metric-tile">
+                  <div class="metric-value danger">30%+</div>
+                  <div class="metric-label">Budget Spent on Interest Servicing</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card danger">
+              <div class="card-title"><span class="icon">💸</span> Regressive Indirect Tax Exploitation</div>
+              <p style="font-size: 0.95rem; line-height: 1.6; color: #f1f5f9; margin-bottom: 14px;">
+                Because large multinational corporations use offshore tax havens and base erosion (BEPS) to pay near-zero corporate taxes, governments balance budgets through massive indirect consumption taxes.
+              </p>
+              
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Uniform Tax on Unequal Means:</strong> A daily-wage laborer and a billionaire pay the exact same GST/VAT rate on essential fuel, food, and daily medicines.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Destruction of Productive Base:</strong> Heavy taxation on startups and working artisans stifles indigenous capital formation before enterprises even mature.</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Modern Debt Traps vs Public Welfare</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"अधुना राष्ट्रस्य यत् डेवलपमेंट् भवन्नस्ति, तत् सर्वं ऋणेनैव भवन्नस्ति... वर्ल्ड-बैंकतः ऋणं स्वीकुर्वन्ति..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् ०७ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 8: SOLUTION 3: RIPE FRUIT MAXIM & NON-TAX STATE REVENUE
+           ========================================== -->
+      <section class="slide" data-slide="8" data-notes="Kautilya's state was not built on debt! Revenue came from state-owned enterprises (Mines, Forests, Commerce). In taxation, Kautilya followed the 'Ripe Fruit Maxim'—pluck only ripe fruit so the tree thrives. In emergency, levies were taken strictly from the rich.">
+        <img class="slide-bg-media" src="images/kautilya_title.jpg" alt="State Enterprises & Ripe Fruit Tax">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill solution">समाधानम् ३ • Solution III</span>
+              <span class="slide-chapter-tag">Public Finance & The Ripe Fruit Maxim • Book V.2.70 & II.6</span>
+            </div>
+            <h2 class="slide-title-sanskrit">'पक्व-फल' कर-न्यायः स्वायत्त-राजस्वं च</h2>
+            <h3 class="slide-title-english">Capacity-Based Surplus Taxation & Sovereign Non-Tax Revenue Architecture</h3>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <!-- Ripe Fruit Doctrine -->
+            <div class="glass-card success">
+              <div class="card-title"><span class="icon">🍎</span> पक्व-फल-सिद्धान्तः (The Ripe Fruit Maxim)</div>
+              
+              <div class="shastra-box">
+                <p class="shastra-text">"पक्वं पक्वमिवारामात् फलं राज्यादवाप्नुयात्।<br>आत्मच्छेदभयादामं वर्जयेत् कोपकारकम्॥"</p>
+                <span class="shastra-ref">अर्थशास्त्रम् ५.२.७० (Tax Surplus, Preserve Capital)</span>
+              </div>
+
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Pluck Only Ripe Fruits:</strong> Just as an orchardist harvests only sweet, ripe fruit without injuring the tree, the state must tax only surplus profits.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Never Pluck Raw Fruit:</strong> Plucking unripe fruit destroys both the fruit and the tree. Excessive tax on developing capital destroys the nation's productive base.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Tax Holidays for New Enterprises (२.१.१८):</strong> New land reclamation, artisans, and startups received complete tax exemptions until self-sufficient!</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Non-Tax Sovereign Revenue -->
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">💎</span> Debt-Free Sovereign Wealth Architecture</div>
+              
+              <p style="font-size: 0.9rem; line-height: 1.5; color: #f1f5f9; margin-bottom: 12px;">
+                Kautilya's empire did not rely on foreign borrowing. The state generated robust non-tax revenue through strategic state enterprises:
+              </p>
+
+              <div class="point-list" style="margin-bottom: 14px;">
+                <div class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Akaraprabhavah Koshah (२.१२.३७):</strong> Mines and metallurgy (gold, silver, iron, copper) were state monopolies providing vast non-tax treasury inflows.</div>
+                </div>
+                <div class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Seven-Fold Revenue Base (आयशरीरम् - २.६.१):</strong> Urban forts, rural harvest, mines, irrigation plantations, forests, livestock, and trade highways.</div>
+                </div>
+                <div class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Pranaya Levies Strictly on the Wealthy (५.२.१६):</strong> In crisis, emergency progressive surcharges were taken exclusively from rich merchants, never the poor.</div>
+                </div>
+              </div>
+
+              <div style="background: rgba(46, 196, 182, 0.15); border: 1px dashed rgba(46, 196, 182, 0.4); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; color: #a7f3d0; text-align: center;">
+                "ऋणेन अभिवर्धनं नासीत्... गवर्नमेंट् बिझनेसस् आसीत्, तेनैव डेव्हलपमेंट् कुर्वन्तः आसन्।"
+              </div>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Capacity Taxation vs Sovereign Debt</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"तत्काले तथा नासीत्... गवर्नमेंट् बिझनेसस् आसीत् (खनि-वाणिज्यादिभ्यः), तेनैव डेवेलपमेंट् कुर्वन्तः आसन्..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् ०८ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 9: PROBLEM 4: BRIBERY & CORRUPTION
+           ========================================== -->
+      <section class="slide" data-slide="9" data-notes="In modern administration, bribery (Lancha) is rampant in offices. Without paying under the table, public work does not move. Welfare scheme funds are siphoned off by officials before reaching the needy.">
+        <img class="slide-bg-media" src="images/kautilya_market.jpg" alt="Bribery & Administrative Leakages">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill problem">समस्या ४ • Problem IV</span>
+              <span class="slide-chapter-tag">Administrative Corruption & Fund Embezzlement</span>
+            </div>
+            <h2 class="slide-title-sanskrit">प्रशासने उत्कोचः (लञ्च) सार्वजनिक-धन-अपहारश्च</h2>
+            <h3 class="slide-title-english">Administrative Bribery, Procurement Fraud & Welfare Fund Leakage</h3>
+          </div>
+
+          <div class="slide-body grid-2col-asym">
+            <div class="glass-card danger">
+              <div class="card-title"><span class="icon">🛑</span> The Culture of Bribery ("Lancha")</div>
+              <p style="font-size: clamp(0.85rem, 1.05vw, 1rem); line-height: 1.6; margin-bottom: 14px; color: #f1f5f9;">
+                In modern offices, citizen entitlements and public contracts are choked by institutional bribery and systematic rent-seeking. Bureaucratic bottlenecks are deliberately engineered to demand kickbacks.
+              </p>
+
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>"Lancha" as De Facto Gatekeeper:</strong> Nothing moves in government offices without under-the-table bribes, penalizing honest citizens and destitute applicants.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Welfare Embezzlement:</strong> Billions allocated for poverty alleviation, rural housing, and disaster relief are siphoned by administrative syndicates.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Sluggish Post-Facto Audits:</strong> Modern public audits (like CAG) occur years after funds have disappeared, leading to negligible recovery.</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Kautilya's Psychological Truth -->
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">🐟</span> Kautilya’s Ageless Metaphor</div>
+              
+              <div class="shastra-box" style="margin-bottom: 14px;">
+                <p class="shastra-text">"मत्स्या यथान्तःसलिले चरन्तो<br>ज्ञातुं न शक्याः सलिलं पिबन्तः।<br>युक्तास्तथा कार्यविधौ नियुक्ता<br>ज्ञातुं न शक्या धनमाददानाः॥"</p>
+                <span class="shastra-ref">अर्थशास्त्रम् २.९.३३ (The Invisible Drinking of Water by Swimming Fish)</span>
+              </div>
+
+              <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">
+                Just as fish swimming underwater cannot be seen drinking water, government officials embedded in administrative procedures cannot easily be caught tasting state wealth. This realism guided Kautilya's preventive architecture.
+              </p>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Focus: Bribery & Bureaucratic Leakage</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"कार्यालयेषु... किञ्चित् धनं ददामश्चेदेव सर्वं कार्यं चलति (लञ्चायते)..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् ०९ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 10: SOLUTION 4: FORENSIC AUDITING & NIVI
+           ========================================== -->
+      <section class="slide" data-slide="10" data-notes="Kautilya instituted continuous daily auditing! The Nivi system calculated Net Balance every single day, month, and year. Three independent officials (Accountant, Scribe, Superintendent) verified all books. 40 forensic fraud modes were codified with 1/6th whistleblower bounty!">
+        <img class="slide-bg-media" src="images/kautilya_title.jpg" alt="Tripartite Daily Audits & Nivi">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill solution">समाधानम् ४ • Solution IV</span>
+              <span class="slide-chapter-tag">Forensic Accounting & Whistleblower Bounties • Book II.6 & II.8</span>
+            </div>
+            <h2 class="slide-title-sanskrit">'नीवी'-पद्धत्या निरन्तर-लेखा-परीक्षा</h2>
+            <h3 class="slide-title-english">The Real-Time Continuous Nivi Auditing System & 40 Forensic Embezzlement Modes</h3>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <!-- Nivi Accounting Card -->
+            <div class="glass-card success">
+              <div class="card-title"><span class="icon">📊</span> The 'Nivi' Continuous Audit Mechanism</div>
+              
+              <div class="shastra-box">
+                <p class="shastra-text">"दिवस-मास-संवत्सर-प्रत्यवेक्षणेन नीवी निर्धार्या।"</p>
+                <span class="shastra-ref">अर्थशास्त्रम् २.६.२८ (Daily, Monthly, Yearly Balance Reconciliation)</span>
+              </div>
+
+              <div style="background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 12px; margin-bottom: 12px; text-align: center; border: 1px solid var(--border-card);">
+                <div style="font-family: var(--font-display); font-size: 1.15rem; color: var(--gold-bright);">
+                  Opening Balance + Inflow - Outflow = Net Balance ('नीवी')
+                </div>
+              </div>
+
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Triple Independent Ledger Verification:</strong> The Accountant (गणकः), Scribe (लेखकः), and Superintendent (अध्यक्षः) were independently cross-examined.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Discrepancy Investigation:</strong> If ledgers differed by a single Pana, all three officials were interrogated separately under oath.</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 40 Embezzlement Modes & Whistleblower Bounty -->
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">🔍</span> 40 Embezzlement Modes & Whistleblower Bounties</div>
+              
+              <ul class="point-list" style="margin-bottom: 14px;">
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>40 Forensic Modes Codified (२.८.२०):</strong> Pre-dating expenses, delaying revenue, over-invoicing purchases, under-reporting revenues, and ghost-worker payroll fraud.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>1/6th Whistleblower Bounty (२.८.२९):</strong> Whistleblowers reporting corruption received 1/6th (16.6%) of all recovered stolen state assets as a cash prize!</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Corporate-Grade Efficiency:</strong> Public offices operated with the ruthless precision of the best modern corporate treasuries.</div>
+                </li>
+              </ul>
+
+              <div class="metric-grid">
+                <div class="metric-tile">
+                  <div class="metric-value success">40</div>
+                  <div class="metric-label">Codified Embezzlement Modes</div>
+                </div>
+                <div class="metric-tile">
+                  <div class="metric-value success">1/6th</div>
+                  <div class="metric-label">Whistleblower Asset Bounty</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Forensic Accounting & Anti-Corruption Governance</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"तादृशं किमपि न भवेदिति प्रतिनित्यम् ऑडिट् कुर्वन्ति स्म... द्रष्टारः बहवः आसन्..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् १० / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 11: PROBLEM 5: MIDDLEMEN EXPLOITATION
+           ========================================== -->
+      <section class="slide" data-slide="11" data-notes="Look at agriculture: Farmers toil to grow rice, wheat, and vegetables. They receive only 10 Rs/kg. But in city retail markets, consumers pay 25 to 50 Rs! Where does the money go? Does it reach the farmer? No, it is pocketed by parasitic middlemen!">
+        <img class="slide-bg-media" src="images/kautilya_agrarian.jpg" alt="Agrarian Middlemen Exploitation">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill problem">समस्या ५ • Problem V</span>
+              <span class="slide-chapter-tag">Supply Chain Exploitation & Agrarian Distress</span>
+            </div>
+            <h2 class="slide-title-sanskrit">कृषिक्षेत्रे मध्यवर्तिनां शोषणं कृषक-दुर्गतिश्च</h2>
+            <h3 class="slide-title-english">Parasitic Intermediaries, Agrarian Distress & Supply Chain Value Leakage</h3>
+          </div>
+
+          <div class="slide-body grid-2col-asym">
+            <div class="glass-card danger">
+              <div class="card-title"><span class="icon">🌾</span> The Tragedy of the Primary Producer</div>
+              <p style="font-size: clamp(0.85rem, 1.05vw, 1rem); line-height: 1.6; margin-bottom: 14px; color: #f1f5f9;">
+                In the modern agricultural supply chain, the primary producer bears all climate and financial risks, yet receives the smallest fraction of retail consumer spending.
+              </p>
+
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>The Farm-to-Consumer Chasm:</strong> A farmer sells rice, wheat, or onions for ₹10 per kg, while urban consumers pay ₹25, ₹40, or ₹50 per kg in retail markets.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Where Does the Money Vanish?</strong> Does it go to the farmer who tilled the soil? Never! It is completely swallowed by multi-layered parasitic middlemen ("मध्यवर्तिनः").</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Vicious Debt Spiral:</strong> Farmers fall into catastrophic debt from high input costs, leading to agrarian distress and farmer suicides while trading cartels thrive.</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Value Extraction Diagram with In-Slide Artwork -->
+            <div class="glass-card highlight" style="text-align: center;">
+              <div class="card-media-figure" onclick="openLightbox('images/kautilya_agrarian.jpg', 'कृषि-क्षेत्रम् — Agrarian Landscape & Grain Commons')" title="Click to view full painting">
+                <img src="images/kautilya_agrarian.jpg" alt="Agrarian Landscape">
+                <div class="card-media-tag">🔍 View Harvest Commons</div>
+              </div>
+              <h4 style="font-family: var(--font-display); color: var(--gold-bright); font-size: 1.1rem; margin-bottom: 8px;">The Intermediary Margin Capture</h4>
+              
+              <div style="background: rgba(30, 41, 67, 0.6); border-radius: 10px; padding: 10px; margin-bottom: 6px;">
+                <div style="font-size: 0.78rem; color: var(--text-muted);">Farmer's Hard-Earned Gate Price</div>
+                <div style="font-size: 1.4rem; font-weight: 800; color: #38bdf8;">₹ 10 / kg</div>
+              </div>
+
+              <div style="font-size: 1.1rem; color: #ff6b6b; margin: 2px 0;">⬇️ Middlemen Cartels Siphon 70-80% Margin</div>
+
+              <div style="background: rgba(230, 57, 70, 0.2); border-radius: 10px; padding: 10px;">
+                <div style="font-size: 0.78rem; color: #fca5a5;">Urban Consumer Retail Price</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #ff6b6b;">₹ 25 – ₹ 50 / kg</div>
+              </div>
+
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; line-height: 1.4;">
+                "अस्माभिः दत्तं धनं किं कृषकस्य गच्छति वा? न गच्छति! मध्यवर्तिनाम् एव अधिकं गच्छति..."
+              </p>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Agrarian Value Chain Breakdown</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"तण्डुलं वा धान्यं वा वेजिवेटेबल्स् वा... कृषकस्य यावत् धनं लभ्यते, तावत् आपणे न दीयते, बहु अधिकं दीयते..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् ११ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 12: SOLUTION 5: ELIMINATING PARASITIC MIDDLEMEN
+           ========================================== -->
+      <section class="slide" data-slide="12" data-notes="Kautilya outlawed parasitic rent-seeking middlemen! If an intermediary provided genuine transport or storage, they were compensated for exact costs plus a capped 5-10% profit. Doubling or tripling prices in the middle was strictly illegal.">
+        <img class="slide-bg-media" src="images/kautilya_agrarian.jpg" alt="Agrarian Commons & Buffer Granaries">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill solution">समाधानम् ५ • Solution V</span>
+              <span class="slide-chapter-tag">Agrarian Commons & Fair Supply Chains • Book II.24 & II.15</span>
+            </div>
+            <h2 class="slide-title-sanskrit">रिक्त-मध्यवर्ति-प्रतिषेधः न्याय्य-वितरण-शृङ्खला च</h2>
+            <h3 class="slide-title-english">Elimination of Rent-Seeking Middlemen & Fair Supply Chain Logistics</h3>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <!-- Outlawing Middlemen -->
+            <div class="glass-card success">
+              <div class="card-title"><span class="icon">🚫</span> रिक्त-मध्यवर्ति-प्रतिषेधः (No Unproductive Middlemen)</div>
+              
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Parasitic Middlemen Outlawed:</strong> No intermediary was permitted to extract speculative markup merely by standing between producer and buyer.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Compensated Strictly for Logistics:</strong> If an intermediary provided legitimate transport or warehousing, they were reimbursed exact costs + capped 5% to 10% margin.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>2x/3x Arbitrage Banned:</strong> Buying at 10 Panas and selling at 25 or 50 Panas without value addition was classified as an economic crime.</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Sitadhyaksha & Granary Reserve -->
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">🌾</span> Sitadhyaksha & 50% Buffer Granaries</div>
+              
+              <div class="shastra-box">
+                <p class="shastra-text">"ततोऽर्धम् आपदर्थं जानपदानां स्थापयेत्, अर्धम् उपभुञ्जीत।"</p>
+                <span class="shastra-ref">अर्थशास्त्रम् २.१५.२१ (Statutory 50% Counter-Cyclical Granary Reserves)</span>
+              </div>
+
+              <ul class="point-list" style="margin-top: 8px;">
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Sitadhyaksha (२.२४):</strong> Provided farmers with certified seeds, zero-interest seed loans (Bija-rnam), and agricultural implements.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Setubandha Irrigation Commons (२.१.२२):</strong> Community water dams and canals maintained cooperatively (matching Nobel Laureate Elinor Ostrom's model).</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Fair Logistics & Community Water Commons</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"रिक्त-मध्यवर्तिनः न भवेयुः... ट्रान्स्पोर्ट्-स्टोरेज् कृते यावत् व्ययः तदुपरि ५%-१०% लाभं निधाय प्राप्तुं शक्नोति..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् १२ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 13: FOUNDATIONAL TELEOLOGY: YOGAKSHEMA & MIXED ECONOMY
+           ========================================== -->
+      <section class="slide" data-slide="13" data-notes="The overarching philosophy: Yogakshema. Kautilya balanced strategic state monopolies (Mines, Salt, Forests) with vibrant private enterprise, backing it all with a universal social safety net for the weak, aged, and orphans.">
+        <img class="slide-bg-media" src="images/kautilya_title.jpg" alt="Yogakshema Mixed Economy">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill">§२. कौटिलीय-मूलाधारः</span>
+              <span class="slide-chapter-tag">Economic Teleology & Equilibrium • Book I.19 & II.1</span>
+            </div>
+            <h2 class="slide-title-sanskrit">'योगक्षेम'-केन्द्रिता मिश्रित-अर्थव्यवस्था</h2>
+            <h3 class="slide-title-english">The Yogakshema Paradigm: Strategic State Monopolies vs. Dynamic Private Commerce</h3>
+          </div>
+
+          <div class="slide-body grid-3col">
+            <!-- Strategic State Core -->
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">⛏️</span> Strategic State Monopolies</div>
+              <p style="font-size: 0.88rem; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">
+                Critical national security resources remained under state stewardship to prevent oligarchic capture:
+              </p>
+              <ul class="point-list" style="font-size: 0.85rem;">
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Mines & Metallurgy (आकराध्यक्षः २.१२):</strong> Gold, silver, iron, copper.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Salt Monopoly (लवणाध्यक्षः):</strong> Universal state quality assurance.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet"></div>
+                  <div><strong>Strategic Timber & Elephants:</strong> Forest reserves (अरण्यपालः).</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Dynamic Private Sector -->
+            <div class="glass-card success">
+              <div class="card-title"><span class="icon">🚢</span> Vibrant Private Enterprise</div>
+              <p style="font-size: 0.88rem; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">
+                Complete commercial freedom across civilian economic domains:
+              </p>
+              <ul class="point-list" style="font-size: 0.85rem;">
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Agriculture, Crafts & Textiles:</strong> Driven by private guilds (Shrenis).</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Interstate & Maritime Trade:</strong> Foreign merchants welcomed with customs exemptions.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Transit Insurance (आतिवाहिकम्):</strong> State compensated merchants for stolen goods.</div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Universal Social Safety Net -->
+            <div class="glass-card">
+              <div class="card-title"><span class="icon">🤝</span> Universal Safety Net</div>
+              <div class="shastra-box" style="padding: 10px; margin: 8px 0;">
+                <p class="shastra-text" style="font-size: 0.95rem;">"बाल-वृद्ध-व्याधित-व्यसन्य-अनाथांश्च राजा बिभृयात्..."</p>
+                <span class="shastra-ref">अर्थशास्त्रम् २.१.२६</span>
+              </div>
+              <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">
+                State revenues were mandated by law to nourish orphans, the aged, disabled, and destitute pregnant women, guaranteeing dignity for all.
+              </p>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Equilibrium: Beyond Laissez-Faire & State Socialism</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"कौटिल्य-नियमाः जनानाम्, तत्रापि विशेषतः सामान्य-जनानाम् निर्धनिकानां कृते बहु आदरणीयम् आसीत्..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् १३ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 14: TIMELESS PRINCIPLES OVER LITERAL FORMS
+           ========================================== -->
+      <section class="slide" data-slide="14" data-notes="We do not need to literally adopt ancient silver coins or birch-bark books. What we must adopt are the timeless governance principles: real-time auditing, protecting the poor, eliminating arbitrary price gouging, and preventing parasitic middlemen.">
+        <img class="slide-bg-media" src="images/kautilya_market.jpg" alt="Modern Relevance">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill">§३. आधुनिक-उपयोगिता</span>
+              <span class="slide-chapter-tag">Hermeneutic Translation • Form vs Essence</span>
+            </div>
+            <h2 class="slide-title-sanskrit">आधुनिक-प्रासङ्गिकता : बाह्य-रूपं विहाय मूल-सिद्धान्त-स्वीकारः</h2>
+            <h3 class="slide-title-english">Timeless Principles over Literal Forms: Applying Ancient Insights Today</h3>
+          </div>
+
+          <div class="slide-body grid-2col">
+            <div class="glass-card">
+              <div class="card-title"><span class="icon">❌</span> What We Do NOT Propose (The Literal Fallacy)</div>
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>No Regression to Physical Silver Coinage:</strong> We do not propose abolishing digital fiat to mint ancient silver Pana or Karshapana coins.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>No Re-imposition of Ancient Manual Ledgers:</strong> We do not advocate returning to palm-leaf accounts or archaic manual tax collectors.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet danger"></div>
+                  <div><strong>Rejecting Anachronistic Literalism:</strong> Shastric economic principles must be understood through their functional institutional logic, not external historical forms.</div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="glass-card success">
+              <div class="card-title"><span class="icon">✅</span> What We MUST Integrate (The Eternal Essence)</div>
+              <ul class="point-list">
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Real-Time Continuous Forensic Auditing:</strong> Translating Kautilya's Nivi into automated real-time triple-entry digital balance systems.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Protection of the Working Masses:</strong> Ending stealth inflation taxes that systematically impoverish wage earners and pensioners.</div>
+                </li>
+                <li class="point-item">
+                  <div class="point-bullet success"></div>
+                  <div><strong>Decoupling Essential Commodities from Cartel Gouging:</strong> Enforcing transparent cost-plus price verification on medicine, food, and essentials.</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Scientific Translation of Dharmic Economics</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"न वयं तत्काले यथा आसीत् तथैव अद्य रजत-नाणकानि एव कुर्मः इति न... किन्तु ऑडिट् यथा आसीत्, निर्धनेभ्यः रक्षणं यथा आसीत्..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् १४ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 15: POLICY ROADMAP FOR THE 21ST CENTURY
+           ========================================== -->
+      <section class="slide" data-slide="15" data-notes="Actionable roadmap for Ministries of Finance, Central Banks, and Competition Commissions: 1) Capacity-based taxation, 2) Algorithmic price surveillance & statutory caps, 3) Real-time Nivi blockchain audits, 4) Ostrom-style commons irrigation, 5) 50% buffer granaries, 6) Sound money.">
+        <img class="slide-bg-media" src="images/kautilya_agrarian.jpg" alt="Actionable Policy Directives">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content">
+          <div class="slide-header">
+            <div class="slide-badge-row">
+              <span class="slide-pill">§४. नीति-प्रस्तावना</span>
+              <span class="slide-chapter-tag">Actionable Recommendations • Ministries of Finance & Central Banks</span>
+            </div>
+            <h2 class="slide-title-sanskrit">एकविंशति-शताब्द्यै षट्-नीति-प्रस्तावनाः</h2>
+            <h3 class="slide-title-english">Six Actionable Policy Directives for 21st-Century Governance</h3>
+          </div>
+
+          <div class="slide-body grid-3col">
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">1️⃣</span> Capacity-Based Tax Reforms</div>
+              <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">
+                Reduce regressive indirect consumption taxes (GST/VAT). Adopt Kautilya's Ripe Fruit Doctrine, granting automatic statutory tax holidays to startups and MSMEs.
+              </p>
+            </div>
+
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">2️⃣</span> Anti-Greedflation Caps</div>
+              <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">
+                Deploy Competition Commission algorithmic oversight to audit the 3-Factor Cost of essential goods, enforcing statutory caps against arbitrary brand markups.
+              </p>
+            </div>
+
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">3️⃣</span> Continuous Nivi Auditing</div>
+              <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">
+                Replace delayed post-facto bureaucratic audits with real-time digital balance auditing, enforcing Kautilya's 1/6th whistleblower bounty for recovered stolen public assets.
+              </p>
+            </div>
+
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">4️⃣</span> Setubandha Water Commons</div>
+              <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">
+                Empower local Panchayats to manage community irrigation commons (Elinor Ostrom model) with guaranteed state input matching and mandatory collective maintenance.
+              </p>
+            </div>
+
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">5️⃣</span> 50% Counter-Cyclical Buffers</div>
+              <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">
+                Mandate statutory 50% physical commodity and grain reserves managed under FIFO inventory protocols to eliminate food insecurity during global supply shocks.
+              </p>
+            </div>
+
+            <div class="glass-card highlight">
+              <div class="card-title"><span class="icon">6️⃣</span> Sound Money & Asset Velocity</div>
+              <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">
+                Halt stealth currency debasement. Drive capital velocity by heavily taxing or penalizing idle land and speculative hoarding, channeling funds into real productive industry.
+              </p>
+            </div>
+          </div>
+
+          <div class="slide-footer">
+            <div class="footer-left"><span>Policy Framework for Global Central Banks</span></div>
+            <div class="audio-note-box">
+              <span class="mic-icon">🎙️</span>
+              <span>"कौटिल्य-अध्ययनेन सह आधुनिक-एकमिक्स्-प्लान् भवति चेत्, बहु सम्यग् भवति..."</span>
+            </div>
+            <div class="footer-right">स्लाईड् १५ / १६</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           SLIDE 16: CONCLUSION & CONCLUDING REMARKS
+           ========================================== -->
+      <section class="slide" data-slide="16" data-notes="Concluding synthesis: When modern economic planning combines Arthashastra's timeless wisdom with contemporary economics, we achieve sustainable, ethical, and crisis-free solutions. Gratitude to Chair Prof. Brajkishore Swain and the assembly.">
+        <img class="slide-bg-media" src="images/kautilya_title.jpg" alt="Conclusion Slide">
+        <div class="slide-bg-gradient"></div>
+
+        <div class="slide-content" style="justify-content: center; text-align: center; align-items: center;">
+          <div class="hero-glass-panel">
+            <div class="slide-badge-row" style="justify-content: center; margin-bottom: 14px;">
+              <span class="slide-pill">उपसंहारः • Conclusion</span>
+              <span class="slide-chapter-tag">52nd AIOC Haridwar 2026</span>
+              <span class="slide-pill" onclick="openLightbox('images/kautilya_title.jpg', 'आचार्य कौटिल्यः (चाणक्यः) — The Sage Architect of Yogakshema')" style="cursor: pointer; background: rgba(240, 192, 90, 0.22); border-color: rgba(240, 192, 90, 0.6);" title="Click to view full background artwork in high resolution">🖼️ View Artwork</span>
+            </div>
+
+            <h2 class="slide-title-sanskrit" style="font-size: clamp(2rem, 3.2vw, 3.4rem); margin-bottom: 14px;">
+              कौटिल्य-अध्ययनेन सह आधुनिक-आर्थिक-योजना
+            </h2>
+            <h3 class="slide-title-english" style="font-size: clamp(1.1rem, 1.6vw, 1.6rem); color: var(--gold-primary); margin-bottom: 22px;">
+              Synthesizing Kautilyan Wisdom with Modern Economics for a Crisis-Free World
+            </h3>
+
+            <div class="shastra-box" style="border-left: none; border-bottom: 2px solid var(--gold-bright); border-top: 2px solid var(--gold-bright); border-radius: 0; display: inline-block; padding: 16px 36px; margin-bottom: 24px;">
+              <p class="shastra-text" style="font-size: clamp(1.1rem, 1.5vw, 1.45rem); color: var(--gold-bright);">
+                "प्रजासुखे सुखं राज्ञः प्रजानां च हिते हितम्।<br>
+                नात्मप्रियं हितं राज्ञः प्रजानां तु प्रियं हितम्॥"
+              </p>
+              <span class="shastra-ref">अर्थशास्त्रम् १.१९.३४ (The Eternal Telos of Public Welfare)</span>
+            </div>
+
+            <div style="font-size: clamp(0.95rem, 1.2vw, 1.15rem); color: #e2e8f0; line-height: 1.6; max-width: 850px; margin: 0 auto 24px;">
+              Ancient Indian economics offers the world an unshakable foundation: uniting <strong style="color: var(--gold-bright);">Dharma (Ethical Institutional Design)</strong>, <strong style="color: #38bdf8;">Artha (Productive Capacity)</strong>, and <strong style="color: #4ade80;">Yogakshema (Equitable Social Wellbeing)</strong>.
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 32px; font-size: 0.95rem; color: var(--text-muted);">
+              <div>
+                <span style="color: var(--gold-primary); font-weight: 700;">सत्राध्यक्षाः:</span> प्रो. ब्रजकिशोर-स्वाइँ-महोदयाः
+              </div>
+              <div>•</div>
+              <div>
+                <span style="color: var(--gold-primary); font-weight: 700;">शोधकर्ता (Author):</span> प्रवीणः (National Sanskrit University, Tirupati)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-footer">
+          <div class="footer-left"><span>अखिलभारतीय-प्राच्यविद्या-सम्मेलनम् (AIOC Haridwar)</span></div>
+          <div class="audio-note-box">
+            <span class="mic-icon">🎙️</span>
+            <span>"इति उक्त्वा मम वाग्व्यापारात् विरमामि। धन्यवादः!"</span>
+          </div>
+          <div class="footer-right">स्लाईड् १६ / १६</div>
+        </div>
+      </section>
+
+    </div><!-- /#slide-stage -->
+
+  </div><!-- /#presentation-viewport -->
+
+  <!-- FLOATING PRESENTER CONTROLLER -->
+  <div id="pres-controls">
+    <button id="btn-prev" class="ctrl-btn" title="Previous Slide (← / Backspace)">◀</button>
+    <div id="slide-indicator" class="ctrl-counter">01 / 16</div>
+    <button id="btn-next" class="ctrl-btn" title="Next Slide (→ / Space)">▶</button>
+    <div style="width: 1px; height: 20px; background: rgba(255, 255, 255, 0.2); margin: 0 4px;"></div>
+    <button id="btn-art-mode" class="ctrl-btn" title="Toggle Artwork Spotlight / High Visibility Mode (V / I)">🖼️</button>
+    <button id="btn-zoom-art" class="ctrl-btn" title="Inspect Full Artwork in Lightbox (Z)">🔍</button>
+    <div style="width: 1px; height: 20px; background: rgba(255, 255, 255, 0.2); margin: 0 4px;"></div>
+    <button id="btn-thumbs" class="ctrl-btn" title="Grid View / Overview (T)">🗂️</button>
+    <button id="btn-notes" class="ctrl-btn" title="Presenter Audio Cues (N)">📝</button>
+    <button id="btn-fullscreen" class="ctrl-btn" title="Toggle Fullscreen (F)">⛶</button>
+  </div>
+
+  <!-- FULLSCREEN ARTWORK LIGHTBOX MODAL -->
+  <div id="artwork-lightbox">
+    <button class="lightbox-close-btn" id="btn-close-lightbox" title="Close (Esc)">✕</button>
+    <div class="lightbox-img-box">
+      <img id="lightbox-img" src="" alt="Enlarged Artwork">
     </div>
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+  </div>
 
-    <!-- Soft Bottom Vignette for Crisp Text Contrast -->
-    <div class="vignette-overlay"></div>
-
-    <!-- Invisible Click Navigation Zones (Click right = next, Click left = prev) -->
-    <div id="click-zone-left" class="click-zone" title="Previous Slide"></div>
-    <div id="click-zone-right" class="click-zone" title="Next Slide"></div>
-
-    <!-- Pure Plain Text Layer Floating over Image (Single Line at Middle) -->
-    <div id="text-overlay">
-      <h1 id="slide-heading" class="plain-heading">Haridwar Ganges Dawn: Verified Sanskrit AI</h1>
+  <!-- THUMBNAILS MODAL DRAWER -->
+  <div id="thumbs-modal">
+    <div class="thumbs-header">
+      <h3 style="font-family: var(--font-display); color: var(--gold-bright); font-size: 1.4rem;">
+        Presentation Outline (All 16 Slides)
+      </h3>
+      <button id="btn-close-thumbs" class="ctrl-btn" style="background: rgba(255, 255, 255, 0.1);">✕</button>
     </div>
+    <div id="thumbs-grid-container" class="thumbs-grid"></div>
+  </div>
 
-    <!-- Temporary Toast Indicator for Presenter (Fades out automatically) -->
-    <div id="presenter-toast"></div>
-
+  <!-- PRESENTER LIVE NOTES DRAWER -->
+  <div id="notes-drawer">
+    <div class="notes-title">
+      <span>🎙️ Presenter Audio Rehearsal Cues</span>
+      <button id="btn-close-notes" class="ctrl-btn" style="background: transparent;">✕</button>
+    </div>
+    <div id="notes-body" class="notes-content"></div>
   </div>
 
   <script>
-    // Injected Slides Dataset (All 119 Slides)
-    const SLIDES_DATA = [{"index": 1, "filename": "images/001_Chunk.jpg", "original": "chunk01_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Haridwar Ganges Dawn: Verified Sanskrit AI", "subtitle": "संशोधन-मन्दिरम् : प्रामाणिक-संस्कृत-AI • River Mist & Sacred Temple Dawn", "sanskrit": "आदरणीयाः सत्राध्यक्षिण्यः प्रो. शिवानी-वि.-महोदयाः, विद्वांसश्च। 52nd AIOC Haridwar 2026 मध्ये 'संशोधन-मन्दिरम् : प्रामा...", "description": "Cinematic 16:9 presentation background. Foreground: soft mist curling over the sacred Ganges river surface. Midground: ancient Haridwar temp...", "motion": "zoom-in"}, {"index": 2, "filename": "images/002_Chunk.jpg", "original": "chunk02_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Golden Balance: Palm-Leaf vs Neural Net", "subtitle": "Zero Hallucination • Paninian Ground Truth • Sacred Mathematical Equilibrium", "sanskrit": "अस्माकं प्रतिपाद्यः विषयः—LLM-भ्रान्तिं विना, पाणिनीय-सत्यता-सहितं संस्कृत-शास्त्राणाम् आधुनिक-सङ्गणकीकरणम्।", "description": "Cinematic 16:9 presentation background. Foreground: a golden balance scale glowing with divine light, on one side an ancient sacred palm-lea...", "motion": "pan-right"}, {"index": 3, "filename": "images/003_Chunk.jpg", "original": "chunk03_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Maharshi Panini: Generative Formal Grammar", "subtitle": "500 BCE Foundations • Sage Silhouette, Lamp Flames & Coordinate Grids", "sanskrit": "सार्ध-द्विसहस्र-वर्षेभ्यः प्रागेव महर्षिः पाणिनिः मानवेतिहासस्य प्रथमं पूर्णं उत्पादक-व्याकरणम् (Generative Formal Gramm...", "description": "Cinematic 16:9 presentation background. Foreground: flickering brass oil lamps casting warm light on weathered palm-leaf scroll bundles. Mid...", "motion": "zoom-out"}, {"index": 4, "filename": "images/004_Chunk.jpg", "original": "chunk04_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Deterministic State Machine: 4,000 Sutras", "subtitle": "4,000 Paninian Sutras as Algorithmic State Transitions & Vector Traces", "sanskrit": "पाणिनेः ४,००० सूत्राणि वस्तुतः आधुनिक-प्रोग्रामिङ्ग-भाषावत् एकं गणितीयं निश्चायक-तन्त्रं (Deterministic State Machine) न...", "description": "Cinematic 16:9 presentation background. Foreground: subtle embossed circuit-trace patterns on an obsidian surface. Midground: a complex glow...", "motion": "pan-left"}, {"index": 5, "filename": "images/005_Chunk.jpg", "original": "chunk04_base_v1.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Paninian Compiler: Circuit Flow & Logic Traces", "subtitle": "Algorithmic State Flow-Graph on Polished Obsidian Surface", "sanskrit": "पाणिनेः ४,००० सूत्राणि वस्तुतः आधुनिक-प्रोग्रामिङ्ग-भाषावत् एकं गणितीयं निश्चायक-तन्त्रं (Deterministic State Machine) न...", "description": "Cinematic 16:9 presentation background. Foreground: subtle embossed circuit-trace patterns on an obsidian surface. Midground: a complex glow...", "motion": "drift-up"}, {"index": 6, "filename": "images/006_Chunk.jpg", "original": "chunk05_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "The Three Eras of Shastra Preservation", "subtitle": "Panoramic Synthesis: Gurukul Banyan, Scribe Press & Quantum Servers", "sanskrit": "इतिहासस्य सिंहावलोकनेन ज्ञायते यत् कालक्रमेण शास्त्र-संरक्षणस्य पद्धतिः त्रिषु युगेषु संवर्धिता अस्ति।", "description": "Cinematic 16:9 presentation background. A sweeping wide panoramic scene blending three eras along a horizontal gradient: left zone — a tradi...", "motion": "diagonal"}, {"index": 7, "filename": "images/007_Chunk.jpg", "original": "chunk05_base_triptych.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Preservation Triptych: Oral, Print & Digital AI", "subtitle": "Oral Tradition • Movable Type • High-Density Shastric Vector Vaults", "sanskrit": "इतिहासस्य सिंहावलोकनेन ज्ञायते यत् कालक्रमेण शास्त्र-संरक्षणस्य पद्धतिः त्रिषु युगेषु संवर्धिता अस्ति।", "description": "Cinematic 16:9 presentation background. A sweeping wide panoramic scene blending three eras along a horizontal gradient: left zone — a tradi...", "motion": "zoom-in"}, {"index": 8, "filename": "images/008_Chunk.jpg", "original": "chunk06_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Oral Tradition & Gurukul Recitation", "subtitle": "कण्ठस्थीकरण-गुरुशिष्य-परम्परा • Volumetric Sunlight & Vedic Recitation", "sanskrit": "प्रथमः प्राचीन-युगः—कण्ठस्थीकरण-गुरुशिष्य-परम्परा। मुखात् मुखं प्रति सङ्क्रमितेन अध्ययनेनैव शास्त्राणां सुरक्षा अभवत्।", "description": "Cinematic 16:9 presentation background. Foreground: the gnarled roots and trunk of an ancient sacred banyan tree. Midground: silhouetted fig...", "motion": "pan-right"}, {"index": 9, "filename": "images/009_Chunk.jpg", "original": "chunk07_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Guarding Sacred Texts (योग्यता-परीक्षणम्)", "subtitle": "Ornate Brass Locks & Radiating Temple Sanctuary", "sanskrit": "तदा अयोग्य-जनेषु शास्त्र-प्रकाशनेन अपव्याख्यायाः विकृतेः च सम्भावना आसीत्, अतः योग्यता-परीक्षणानन्तरमेव विद्या-दानं क्रि...", "description": "Cinematic 16:9 presentation background. Foreground: ornate brass Vedic lock mechanisms glinting in warm light. Midground: an ancient carved ...", "motion": "zoom-out"}, {"index": 10, "filename": "images/010_Chunk.jpg", "original": "chunk08_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Movable Devanagari Type & Printing Press", "subtitle": "हस्तलेखन-मुद्रण-प्रकाशनम् • Birch-Bark Folios & Antique Wooden Press", "sanskrit": "द्वितीयः मध्य-युगः—हस्तलेखन-मुद्रण-प्रकाशनम्। गोपनेन विलोप-भयात् सार्वजनिक-प्रकाशनमेव संरक्षणस्य प्रधान-मार्गः सञ्जातः।", "description": "Cinematic 16:9 presentation background. Foreground: metallic movable Devanagari type-sorts scattered on an ink-stained wooden surface. Midgr...", "motion": "pan-left"}, {"index": 11, "filename": "images/011_Chunk.jpg", "original": "chunk09_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Manuscript Loss Across History", "subtitle": "कोटिभ्यः लक्ष-पर्यन्तं ह्रासः • Glowing Embers & Resilient Manuscript", "sanskrit": "इतिहासे भारतवर्षे कोटिशः शास्त्र-ग्रन्थाः आसन्, किन्तु नालन्दा-तक्षशिला-विध्वंसेन, अग्निदाहैश्च बहुभागः नष्टः; अधुना केव...", "description": "Cinematic 16:9 presentation background. Foreground: a solitary weathered manuscript fragment gently glowing in resilient gold on dark earth....", "motion": "drift-up"}, {"index": 12, "filename": "images/012_Chunk.jpg", "original": "chunk10_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Digital Shastra Sanctuary & Vector Archives", "subtitle": "RAG-ज्ञानसञ्चयः • Ancient Library Shelves Blending into Server Racks", "sanskrit": "तृतीयः आधुनिक-युगः—अद्य एकविंशति-शतके केवलं पुस्तकालयेषु पुस्तकानां स्थापनेन शास्त्र-संरक्षणं पर्याप्तं न वर्तते।", "description": "Cinematic 16:9 presentation background. Foreground: the spines of ancient bound volumes receding from view. Midground: massive modern librar...", "motion": "diagonal"}, {"index": 13, "filename": "images/013_Chunk.jpg", "original": "chunk11_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Shielding Sacred Texts Against Digital Noise", "subtitle": "Shielding Sacred Texts Against Red Digital Noise & Distortions", "sanskrit": "यदि अद्य शास्त्राणि RAG-माध्यमेन AI-तन्त्रेषु न संनिवेश्यन्ते, तर्हि भावि-सन्ततिः शास्त्रीय-ज्ञानात् वञ्चिता भविष्यति, A...", "description": "Cinematic 16:9 presentation background. Foreground: glowing ancient manuscript scrolls resting on a stone plinth. Midground: a translucent c...", "motion": "zoom-in"}, {"index": 14, "filename": "images/014_Chunk.jpg", "original": "chunk12_base.jpg", "category": "Act 1: Title & The Three Eras", "heading": "Structured Shastric Vector Core (Lakhs of Granthas)", "subtitle": "Structured Vector Foundation Powering Neural Reasoning Engine", "sanskrit": "अत्र नूतन-संस्कृत-LLM-निर्माणं न विवक्षितम्, अपि तु लक्षशः ग्रन्थानां Vector DB मध्ये स्थापयित्वा शीर्ष-AI-प्रतिरूपैः (G...", "description": "Cinematic 16:9 presentation background. Foreground: golden ember particles rising from the base. Midground: a massive structured multi-layer...", "motion": "pan-right"}, {"index": 15, "filename": "images/015_Chunk.jpg", "original": "chunk13_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Rediscovery of Lost Veda-Artha (विस्मृत-वेदार्थ-पुनःप्राप्तिः)", "subtitle": "Six Glowing Vedanga Wheels in Cosmic Orbit", "sanskrit": "लाभः १: षडङ्गाध्ययन-वैदिकव्याकरणाद्यभावे विस्मृत-वेदार्थस्य पुनःप्राप्तिः। 'ब्राह्मणेन निष्कारणो धर्मः षडङ्गो वेदोऽध्येय...", "description": "Cinematic 16:9 presentation background. Foreground: warm golden particles rising gently. Midground: six radiant celestial wheels representin...", "motion": "zoom-out"}, {"index": 16, "filename": "images/016_Chunk.jpg", "original": "chunk14_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Sub-Second Cross-Synthesis of Vedanga Treatises", "subtitle": "Synchronizing Pratisakhya, Vyakarana & Nirukta Beyond Human Capacity", "sanskrit": "कलियुगे कस्यापि एकस्य मानवस्य पार्श्वे न तावती मेधा न वा तावद् आयुः, किन्तु AI सहस्रांश-क्षणे प्रातिशाख्य-व्याकरण-निरुक्...", "description": "Cinematic 16:9 presentation background. Foreground: a single luminous golden calligraphic ornament at the center. Midground: four radiant lu...", "motion": "pan-left"}, {"index": 17, "filename": "images/017_Chunk.jpg", "original": "chunk15_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Everyday Access to Dharmic Subtleties (धर्म-सूक्ष्म-ज्ञानम्)", "subtitle": "Modern Seeker with Instant Pocket Pandit Access", "sanskrit": "लाभः २: धर्म-सूक्ष्म-ज्ञानस्य सर्वजन-सुलभता। सम्प्रदाय-भेदानुसारं सूक्ष्मतमाः विचाराः ये पण्डित-मण्डलेषु गुप्ताः आसन्, त...", "description": "Cinematic 16:9 presentation background. Foreground: the soft golden glow of a modern smartphone screen lighting a person's hands. Midground:...", "motion": "drift-up"}, {"index": 18, "filename": "images/018_Chunk.jpg", "original": "chunk16_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Objective Clarification: Citations Over Personal Bias", "subtitle": "Resolving Complex Dharmic Precepts with Canonical Cross-Citations", "sanskrit": "कश्चित् सामान्य-जनः स्वसंशयं पृच्छति, AI च तं संशयं मूल-शास्त्र-भाष्य-प्रमाणेन स्पष्टीकरोति—प्रत्येकस्य पार्श्वे एकः पण्...", "description": "Cinematic 16:9 presentation background. Foreground: an open modern digital tablet resting on a carved wooden desk, its screen emitting warm ...", "motion": "diagonal"}, {"index": 19, "filename": "images/019_Chunk.jpg", "original": "chunk17_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Revival of Classical Ayurveda & Applied Sciences", "subtitle": "Charaka & Sushruta Botanical Synthesis", "sanskrit": "लाभः ३: आयुर्वेद-ज्योतिष-गणितादि-व्यावहारिक-विज्ञानानां पुनरुद्धारः। विखण्डितानां सहस्रशः सूत्राणां समन्वयः।", "description": "Cinematic 16:9 presentation background. Foreground: classical Ayurvedic medicinal herbs and dried botanicals arranged on aged parchment. Mid...", "motion": "zoom-in"}, {"index": 20, "filename": "images/020_Chunk.jpg", "original": "chunk18_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Cross-Domain Synergy: Astronomy, Math & Herbs", "subtitle": "Holistic Links: Aryabhatiya Celestial Math to Medicinal Formulas", "sanskrit": "चरक-सुश्रुत-वाग्भट-लीलावती-आर्यभटीयादि-ग्रन्थेषु विकीर्णाः योगाः गणितानि च RAG-समन्वितेन AI-तन्त्रेण एकत्र सम्बध्यन्ते।", "description": "Cinematic 16:9 presentation background. Foreground: glowing golden data-point particles floating upward. Midground: a multi-dimensional abst...", "motion": "pan-right"}, {"index": 21, "filename": "images/021_Chunk.jpg", "original": "chunk19_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Inter-Grantha Knowledge Graph (ग्रन्थान्तर-ज्ञान-जालम्)", "subtitle": "Connecting Dispersed Shastric Insights", "sanskrit": "लाभः ४: ग्रन्थान्तर-ज्ञान-जालस्य निर्माणम्। एकस्मिन् विषये वेद-उपनिषद्-भाष्येषु स्थितान् अदृष्ट-सम्बन्धान् AI सहस्रांश-क...", "description": "Cinematic 16:9 presentation background. Foreground: softly glowing golden filament strands in the lower portion. Midground: a vast luminous ...", "motion": "zoom-out"}, {"index": 22, "filename": "images/022_Chunk.jpg", "original": "chunk20_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Unifying Millennia of Classical Commentaries", "subtitle": "Interlinking Shankara, Ramanuja, Madhva & Raghavendra Tikas", "sanskrit": "शाङ्करभाष्ये, मधुसूदन-सरस्वती-टीकायां, श्रीमद्राघवेन्द्रतीर्थानां व्याख्यासु च स्थितान् परस्पर-सन्दर्भान् युगपत् एकत्र स...", "description": "Cinematic 16:9 presentation background. Foreground: the edges of three distinct open ancient manuscript codices from different classical sch...", "motion": "pan-left"}, {"index": 23, "filename": "images/023_Chunk.jpg", "original": "chunk21_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Democratizing Shastras in Regional Languages", "subtitle": "Breaking Language Barriers for Farmers, Students & Global Seekers", "sanskrit": "लाभः ५: शास्त्रस्य लोक-भाषासु सुलभता। जटिलतमं शास्त्रीय-ज्ञानं हिन्दी-आङ्ग्ल-कन्नड-तमिळ-तेलुगु-आदि-भाषासु मूल-प्रमाणेन स...", "description": "Cinematic 16:9 presentation background. Foreground: a central glowing golden ornamental symbol. Midground: delicate luminous streams of dive...", "motion": "drift-up"}, {"index": 24, "filename": "images/024_Chunk.jpg", "original": "chunk22_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Multilingual Access: Hindi, Kannada, Tamil & English", "subtitle": "Democratizing Sacred Texts Across Modern Languages Without Distortion", "sanskrit": "येन संस्कृतं न जानन्तः अपि—कृषकाः, विद्यार्थिनः, शोधकाः—स्वधर्मस्य सूक्ष्मान् विषयान् मूल-ग्रन्थ-प्रमाणेन ज्ञातुं शक्नुव...", "description": "Cinematic 16:9 presentation background. Foreground: the warm glow of a holographic digital podium surface. Midground: young Indian universit...", "motion": "diagonal"}, {"index": 25, "filename": "images/025_Chunk.jpg", "original": "chunk23_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Correcting Distorted Orientalist Translations", "subtitle": "Restoring Authentic Indic Darshanic Foundations & Native Hermeneutics", "sanskrit": "लाभः ६: पाश्चात्त्य-विकृत-व्याख्यानानां शोधनम्। विगतेषु द्विशत-वर्षेषु Orientalists-द्वारा कृतान् विकृतान् अनुवादान् AI ...", "description": "Cinematic 16:9 presentation background. Foreground: crumbling faded pages of a biased 19th-century colonial-era book dissolving at the edges...", "motion": "zoom-in"}, {"index": 26, "filename": "images/026_Chunk.jpg", "original": "chunk24_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Automated Citation Verification Against Bhashyas", "subtitle": "Neutralizing 200 Years of Distorted Orientalist Translations", "sanskrit": "विकृत-अनुवादान् मूल-शास्त्र-प्रमाणेन सह तुलयित्वा स्वयमेव चिह्नयितुं शोधयितुं च शक्नोति, येन मूल-भारतीय-दृष्टिकोणः पुनःस...", "description": "Cinematic 16:9 presentation background. Foreground: faint crimson-marked corrupted document fragments fading out on the left. Midground: a d...", "motion": "pan-right"}, {"index": 27, "filename": "images/027_Chunk.jpg", "original": "chunk25_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Preserving Sampradaya Boundaries (सम्प्रदाय-मर्यादा-रक्षणम्)", "subtitle": "Preventing Doctrinal Confusion in AI Models", "sanskrit": "लाभः ७: सम्प्रदाय-विशेष-भेद-मर्यादायाः रक्षणम्। अद्वैत-द्वैत-विशिष्टाद्वैतादीनां सिद्धान्तान् असंमिश्र्य स्व-स्व-मर्यादा...", "description": "Cinematic 16:9 presentation background. Foreground: subtle golden boundary-line patterns etched on a dark floor. Midground: three crystallin...", "motion": "zoom-out"}, {"index": 28, "filename": "images/028_Chunk.jpg", "original": "chunk26_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "Isolated Vector Namespaces: Zero Contamination", "subtitle": "Advaita, Dvaita & Vishishtadvaita Held Pure in Distinct Namespaces", "sanskrit": "सामान्य-AI-प्रतिरूपाणि सम्प्रदाय-भेदान् न जानन्ति, अतः सिद्धान्त-सङ्करं (Siddhanta Mixing) कुर्वन्ति। अस्माकं RAG-व्यवस्...", "description": "Cinematic 16:9 presentation background. Foreground: faint blueprint grid lines on an obsidian surface. Midground: three isolated, hermetical...", "motion": "pan-left"}, {"index": 29, "filename": "images/029_Chunk.jpg", "original": "chunk27_base.jpg", "category": "Act 2: Seven Benefits of Shastric RAG", "heading": "The 7 Transformative Pillars of Verified RAG", "subtitle": "Seven Golden Vector Pillars Supporting the Dome of Vedic Knowledge", "sanskrit": "एते सप्त-लाभाः केवलं RAG-संरचनया एव लभ्यन्ते, न तु कस्यचित् भ्रान्तिकरस्य पृथक् Sanskrit LLM निर्माणेन।", "description": "Cinematic 16:9 presentation background. Foreground: polished marble floor reflecting golden light. Midground: seven classical Indian marble ...", "motion": "drift-up"}, {"index": 30, "filename": "images/030_Chunk.jpg", "original": "chunk28_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "The Twin Crises in Sanskrit Computational NLP", "subtitle": "द्विविध-सङ्कट-निरूपणम् • Deep OCR Corruption & Generative Hallucination", "sanskrit": "अधुना समस्या-निरूपणम्—आधुनिक-AI-युगे संस्कृत-सङ्गणकीकरणे द्वौ गम्भीरौ अन्तरालौ समुद्भूतौ स्तः।", "description": "Cinematic 16:9 presentation background. Foreground: faint ink splatter marks and torn manuscript edges. Midground dramatic split composition...", "motion": "diagonal"}, {"index": 31, "filename": "images/031_Chunk.jpg", "original": "chunk29_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "30% OCR Error Rate in Ancient Prints", "subtitle": "Fractured Devanagari Characters, Scratched Plates & Bleed-through", "sanskrit": "प्रथमः सङ्कटः पाठ-शुद्धेः—नागरी-लिप्या मुद्रितानां प्राचीन-पुस्तकानां OCR करणे ३०% पर्यन्तं विकृतिः दृश्यते।", "description": "Cinematic 16:9 presentation background. Foreground: extreme close-up of cracked vintage Devanagari typeface on aged yellowed paper with blee...", "motion": "zoom-in"}, {"index": 32, "filename": "images/032_Chunk.jpg", "original": "chunk30_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "Anatomy of OCR Failure: Vertical Conjuncts", "subtitle": "Failure to Parse Vertical Ligatures, Under-Dots & Complex Repha Marks", "sanskrit": "दीर्घाः समासाः, उपरि-अधः स्थितानि रेफ-मात्रा-युक्ताक्षराणि पारम्परिक-OCR-यन्त्रैः सम्यक् न पठ्यन्ते।", "description": "Cinematic 16:9 presentation background. Foreground: enlarged complex Devanagari conjunct glyph silhouettes with glowing white contours. Midg...", "motion": "pan-right"}, {"index": 33, "filename": "images/033_Chunk.jpg", "original": "chunk31_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "Fatal Inversion: Dharmadharmau to Dharmadhamau", "subtitle": "धर्माधर्मौ ➔ धर्माधमौ • Single Character Drop Inverting Moral Law", "sanskrit": "यथा 'धर्माधर्मौ' इत्येतत् 'धर्माधमौ' इति पठ्यते, 'तत्त्वमसि' इत्येतत् 'तत्वमसि' इति वा। एतादृशी लघ्वी अशुद्धिरपि वेदान्त...", "description": "Cinematic 16:9 presentation background. Foreground: golden calligraphic ornament fragments on a dark surface. Midground: a bold luminous gol...", "motion": "zoom-out"}, {"index": 34, "filename": "images/034_Chunk.jpg", "original": "chunk32_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "Subword Tokenization Dilemma (BPE Failure)", "subtitle": "Byte-Pair Encoding (BPE) Shattering Classical Sanskrit Morphemes", "sanskrit": "द्वितीयः प्राविधिक-सङ्कटः—आधुनिक-LLMs आङ्ग्ल-भाषा-केन्द्रितैः Byte-Pair Encoding (BPE) पद-विभाजकैः युक्तानि भवन्ति।", "description": "Cinematic 16:9 presentation background. Foreground: scattered digital byte-fragment shards glowing faintly on a dark surface. Midground: a s...", "motion": "pan-left"}, {"index": 35, "filename": "images/035_Chunk.jpg", "original": "chunk33_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "Dismembering Morphology: Ramaya into Byte Shards", "subtitle": "रामाय ➔ [र, ाम, ाय] • Destroying Vibhakti and Grammatical Cases", "sanskrit": "संस्कृते एकापि पद-रचना प्रकृति-प्रत्यय-सहिता भवति (राम + ङे = रामाय)। यदा BPE-पद-विभाजकः एतत् भिनत्ति, तदा सः निरर्थक-अष...", "description": "Cinematic 16:9 presentation background. Foreground: disconnected golden glyph shards lying scattered on a dark surface. Midground: a flow di...", "motion": "drift-up"}, {"index": 36, "filename": "images/036_Chunk.jpg", "original": "chunk34_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "Destruction of Karakas & Syntactic Coherence", "subtitle": "Scattered Random Subwords Causing Complete Syntactic Blindness", "sanskrit": "अनेन शब्दस्य व्याकरण-सम्बन्धः, कारक-शक्तिः, सदिश-साम्यं (Vector Similarity) च सम्पूर्णतया विनश्यति।", "description": "Cinematic 16:9 presentation background. Foreground: broken glass-like geometric shard fragments scattered across the bottom. Midground: a cl...", "motion": "diagonal"}, {"index": 37, "filename": "images/037_Chunk.jpg", "original": "chunk35_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "Generative Hallucination in Classical Sanskrit", "subtitle": "AI Hallucinating Realistic-Looking But Entirely Fabricated Shlokas", "sanskrit": "तृतीयः विनाशकारी सङ्कटः—Generative Hallucination! LLMs वस्तुतः Next-Token Probability Generators सन्ति, न तु सत्य-साधनान...", "description": "Cinematic 16:9 presentation background. Foreground: hollow shadow wisps dissolving near the viewer. Midground: a sophisticated robotic artif...", "motion": "zoom-in"}, {"index": 38, "filename": "images/038_Chunk.jpg", "original": "chunk36_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "Phantom Sutras: Generating Fake Commentators", "subtitle": "Fabricating Non-Existent Commentaries Camouflaged in Fluent Sanskrit", "sanskrit": "कस्मिंश्चित् दार्शनिक-प्रश्ने पृष्टे सति, सामान्यं LLM स्वरचितं कल्पितं श्लोकं प्रामाणिकवत् उपस्थापयति—इदं साक्षात् शास्...", "description": "Cinematic 16:9 presentation background. Foreground: deceptive golden dust particles crumbling away. Midground: a false ornate golden manuscr...", "motion": "pan-right"}, {"index": 39, "filename": "images/039_Chunk.jpg", "original": "chunk37_base.jpg", "category": "Act 3: The Twin Crisis (OCR & Hallucination)", "heading": "The 90/10 Deception Trap: Fluency vs Truth", "subtitle": "90% Beautiful Sanskrit Prose Hiding 10% Lethal Philosophical Poison", "sanskrit": "LLM यदा संस्कृते भाषते, तदा तत् ९०% शुद्धं भाषते, किन्तु १०% स्थानेषु सत्यवत् भासमानानि कल्पित-सूत्राणि योजयति—अतः निश्च...", "description": "Cinematic 16:9 presentation background. Foreground: faint amber warning-flash pulses along the bottom edge. Midground: a large circular gaug...", "motion": "zoom-out"}, {"index": 40, "filename": "images/040_Chunk.jpg", "original": "chunk38_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Design Philosophy: Grammar First, Retrieval Second", "subtitle": "व्याकरण-प्रथमम् • अन्वेषण-द्वितीयम् • संयोजन-तृतीयम्", "sanskrit": "अस्य युगपत्-सङ्कटस्य परिहाराय अस्माभिः त्रिस्तरीय-शास्त्र-संरचना निर्मिता। अस्याः मूल-सिद्धान्तः—निश्चायकं व्याकरणं प्रथ...", "description": "Cinematic 16:9 presentation background. Foreground: glowing golden bedrock stone foundation with ancient carved motifs. Midground: a majesti...", "motion": "pan-left"}, {"index": 41, "filename": "images/041_Chunk.jpg", "original": "chunk39_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Three-Tier Shastric Architecture Overview", "subtitle": "त्रिस्तरीय-शास्त्र-संरचना • Deterministic Core, Digital Library & LLM Shield", "sanskrit": "अत्र Generative AI केवलं तृतीय-स्तरे भाषा-संयोजनाय वर्तते; सत्यता तु प्रथमे द्वितीये च स्तरे एव सुरक्षिता तिष्ठति।", "description": "Cinematic 16:9 presentation background. Foreground: subtle cyan grid lines on a dark slate surface. Midground: an elegant 3-level isometric ...", "motion": "drift-up"}, {"index": 42, "filename": "images/042_Chunk.jpg", "original": "chunk40_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Paninian Ground-Truth Deterministic Engine", "subtitle": "पाणिनीय-सत्यता-तन्त्रम् • 100% Rule-Based Morphological Verification", "sanskrit": "प्रथम-स्तरः—पाणिनीय-निश्चायक-सत्यता-कोशः। अत्र किमपि Neural Network नास्ति, अपि तु १००% गणितीय-निश्चायकः (Deterministic)...", "description": "Cinematic 16:9 presentation background. Foreground: faint algebraic circuit-trace patterns on a dark steel-blue surface. Midground: a comple...", "motion": "diagonal"}, {"index": 43, "filename": "images/043_Chunk.jpg", "original": "chunk41_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Ashtadhyayi Sopanam: 4,000 Sutras Executable Core", "subtitle": "Mathematical Grammar Engine Resolving Sandhi, Anuvritti & Pratyahara", "sanskrit": "अस्मिन् अष्टाध्यायी-सोपानम्—४,००० पाणिनीय-सूत्राणां पदच्छेदः, अनुवृत्ति-प्रवाहः, अधिकार-सीमा, तथा च प्रत्याहार-साधनं सङ्...", "description": "Cinematic 16:9 presentation background. Foreground: luminous root tendrils of light emerging from the base. Midground: a majestic branching ...", "motion": "zoom-in"}, {"index": 44, "filename": "images/044_Chunk.jpg", "original": "chunk42_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Seven Classical Vyakarana Commentaries Embedded", "subtitle": "Integrating Kashika, Mahabhashya, Siddhanta Kaumudi & Nyasa", "sanskrit": "सप्त-प्राचीन-टीकाभिः सम्पुष्टः भाष्य-सञ्चयः—काशिका, न्यासः, पदमञ्जरी, सिद्धान्तकौमुदी, प्रौढमनोरमा, लघुशब्देन्दुशेखरः, प...", "description": "Cinematic 16:9 presentation background. Foreground: a silk-tied ancient volume resting closest to the viewer. Midground: seven ancient leath...", "motion": "pan-right"}, {"index": 45, "filename": "images/045_Chunk.jpg", "original": "chunk43_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Algorithmic Rupasiddhi: 2,000 Dhatus in 10 Ganas", "subtitle": "Flawless Mathematical Derivations of Verbal and Nominal Forms", "sanskrit": "दशानां गणानां २,००० धातवः, तेषां दश-लकारेषु रूपाणि, 'भू + लट् + तिप् ➔ शप् ➔ गुणः ➔ अवादेशः ➔ भवति' इति गणितीय-रूप-सिद्ध...", "description": "Cinematic 16:9 presentation background. Foreground: a single luminous golden input orb at the base. Midground: a step-by-step glowing golden...", "motion": "zoom-out"}, {"index": 46, "filename": "images/046_Chunk.jpg", "original": "chunk44_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Algorithmic Proofreading: Automatic Shastric Linting", "subtitle": "Instant Highlighting and Rectification of Grammatical Deviations", "sanskrit": "OCR-द्वारा प्राप्तः पाठः प्रथम-स्तरीयेण पाणिनीय-कोशेन परीक्ष्यते। सन्धि-विभक्ति-नियमान् उल्लङ्घयन्तः अशुद्ध-शब्दाः स्वयम...", "description": "Cinematic 16:9 presentation background. Foreground: faint amber inspection-flag markers along the bottom. Midground: ancient calligraphic pa...", "motion": "pan-left"}, {"index": 47, "filename": "images/047_Chunk.jpg", "original": "chunk45_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Sanskrit Digital Library & Verified Corpus", "subtitle": "डिजिटल-शास्त्र-कोशः • Lakhs of Authenticated Shastric Granthas", "sanskrit": "द्वितीय-स्तरः—संस्कृत-अङ्कीय-ग्रन्थागारः (SDL)। विशुद्ध-ग्रन्थानां सङ्ग्रहः, Scholar-in-the-Loop पण्डित-शोधनं, तथा सदिश-...", "description": "Cinematic 16:9 presentation background. Foreground: the curved glass edge of a glowing cylindrical data chamber. Midground: a vast futuristi...", "motion": "drift-up"}, {"index": 48, "filename": "images/048_Chunk.jpg", "original": "chunk46_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Scholar-in-the-Loop: Single-Click Verification Portal", "subtitle": "Empowering Traditional Pandits to Validate Citations with One Click", "sanskrit": "पण्डितानां प्रत्यक्ष-परीक्षणम्—पाणिनीय-कोशेन चिह्नितान् संशय-शब्दान् पारम्परिक-विद्वांसः मूल-मुद्रित-प्रतिच्छव्या सह तुल...", "description": "Cinematic 16:9 presentation background. Foreground: the edge of a high-resolution manuscript scan glowing on a screen surface. Midground: a ...", "motion": "diagonal"}, {"index": 49, "filename": "images/049_Chunk.jpg", "original": "chunk47_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Unshakable Source Attribution: Original Folio Scans", "subtitle": "Direct Traceability: Every Quote Linked to Historical Manuscript Folio", "sanskrit": "अस्माकं व्यवस्थायाः परमं वैशिष्ट्यम्—यदा शोधार्थी किमपि वचनम् अन्विषति, तदा प्रणाली मूल-ग्रन्थस्य मुद्रित-पृष्ठस्य प्रति...", "description": "Cinematic 16:9 presentation background. Foreground: the yellowed edge of an aged paper folio with a translucent golden highlight region visi...", "motion": "zoom-in"}, {"index": 50, "filename": "images/050_Chunk.jpg", "original": "chunk48_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Eradicating Scholarly Skepticism via Empirical Proof", "subtitle": "Eliminating AI Distrust with Transparent Ground-Truth Manuscript Proof", "sanskrit": "अनेन पारम्परिक-विदुषां शोधार्थिनां च मनसि किमपि संशय-लेशोऽपि न अवशिष्यते—प्रत्यक्षं हि साक्ष्यम्।", "description": "Cinematic 16:9 presentation background. Foreground: subtle abstract authentication particle rings rotating gently. Midground: a seal of auth...", "motion": "pan-right"}, {"index": 51, "filename": "images/051_Chunk.jpg", "original": "chunk49_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Shastric Guardrails & Zero-Hallucination Shield", "subtitle": "शास्त्र-मर्यादा-कवचम् • Bounding Generative AI to Retrieved Folios", "sanskrit": "तृतीय-स्तरः—शास्त्र-कवच-नियन्त्रितं भाषा-संयोजनम् (Shastric Guardrails & Zero Hallucination Constraints)।", "description": "Cinematic 16:9 presentation background. Foreground: faint golden sacred geometry lattice patterns at the base. Midground: an ornate golden g...", "motion": "zoom-out"}, {"index": 52, "filename": "images/052_Chunk.jpg", "original": "chunk50_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "LLM as Pure Synthesizer, Never a Source of Truth", "subtitle": "Generative Model Restricted to Drafting Without Epistemic Authority", "sanskrit": "LLM किमपि स्वतन्त्र-ज्ञान-स्रोतः नास्ति; केवलं Tier 1 & 2 आधारेणैव Shastric Guardrails मध्ये संक्षेपणं तुलनां च कर्तुं त...", "description": "Cinematic 16:9 presentation background. Foreground: strict golden directional arrow paths on a dark surface. Midground: an AI reasoning engi...", "motion": "pan-left"}, {"index": 53, "filename": "images/053_Chunk.jpg", "original": "chunk51_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "The Fall-Back Boundary: Evidence Not Found Refusal", "subtitle": "Strict Refusal Protocol: Silence Over Speculative Hallucination", "sanskrit": "यदि पृष्टस्य विषयस्य प्रमाणं ग्रन्थ-सञ्चये नोपलभ्यते, तर्हि LLM मिथ्या-उत्तरं न ददाति; तत् स्पष्टं वदति—'अस्य प्रमाणं नो...", "description": "Cinematic 16:9 presentation background. Foreground: transparent citation log panel edges glowing faintly in cyan. Midground: a sleek, elegan...", "motion": "drift-up"}, {"index": 54, "filename": "images/054_Chunk.jpg", "original": "chunk52_base.jpg", "category": "Act 4: Three-Tier Architecture", "heading": "Hermeneutic Purity Shield: Preserving Tradition", "subtitle": "Protecting Sacred Interpretations Against Speculative Drift", "sanskrit": "पाश्चात्त्य-व्याख्यानानाम् अनुवाद-विकृतीनां वा प्रवेशः न भवति, यतो हि सर्वमपि सामग्री-स्रोतः विशुद्ध-प्राचीन-भाष्य-ग्रन्...", "description": "Cinematic 16:9 presentation background. Foreground: the warm glow of golden oil lamps at the base. Midground: a pristine white marble courty...", "motion": "diagonal"}, {"index": 55, "filename": "images/055_Chunk.jpg", "original": "chunk53_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Shattering the Multi-Crore Fallacy: Why No Custom LLM", "subtitle": "Debunking the Vanity Trap of Training a Dedicated Sanskrit Model", "sanskrit": "अधुना शोधपत्रस्य सर्वाधिक-महत्त्वपूर्णः विभागः—किमर्थं पृथक् Sanskrit Foundation Model (Sanskrit LLM) न निर्मितम्?", "description": "Cinematic 16:9 presentation background. Foreground: crimson fracture-line fragments scattered on a dark surface. Midground: a giant rigid mo...", "motion": "zoom-in"}, {"index": 56, "filename": "images/056_Chunk.jpg", "original": "chunk54_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Vector Knowledge is Hardware-Agnostic", "subtitle": "Mathematical Vector Embeddings Endure Beyond Ephemeral Hardware", "sanskrit": "हेतुः १: सदिश-दत्तांशः सार्वकालिकः (Hardware & Substrate-Agnostic)—Neuromorphic, प्रकाशीय, Quantum-युगेऽपि शाश्वतः।", "description": "Cinematic 16:9 presentation background. Foreground: faint circuit-board traces of various hardware generations. Midground: a floating golden...", "motion": "pan-right"}, {"index": 57, "filename": "images/057_Chunk.jpg", "original": "chunk55_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Silicon GPU Lock-In & 36-Month Obsolescence Trap", "subtitle": "Avoiding Millions in Wasted Capital on Rapidly Outdated Compute", "sanskrit": "अद्यतनं LLM केवलं पारम्परिक-GPU-Matrix-गुणने बद्धम् अस्ति। १८-३६ मासेषु यदा नूतन-Hardware आगमिष्यति, तदा तत् Model मृतप्...", "description": "Cinematic 16:9 presentation background. Foreground: dusty, rusting obsolete GPU chip fragments in shadow. Midground: rows of obsolete, dusty...", "motion": "zoom-out"}, {"index": 58, "filename": "images/058_Chunk.jpg", "original": "chunk56_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Emerging Paradigms: Neuromorphic & Quantum Compute", "subtitle": "Designing Shastric Data to Port Seamlessly to Future Architectures", "sanskrit": "Neuromorphic-सङ्गणकं (Intel Loihi), प्रकाशीय-सङ्गणकं (Photonic Processors), Quantum-Processors च AI-जगति क्रान्तिं कुर्व...", "description": "Cinematic 16:9 presentation background. Foreground: glowing cyan fiber-optic filaments emerging from a chip surface. Midground: close-up mac...", "motion": "pan-left"}, {"index": 59, "filename": "images/059_Chunk.jpg", "original": "chunk57_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Vectors are Eternal Truth: Portable Across Eras", "subtitle": "Universal Mathematical Coordinates Decoupled from Physical Silicon", "sanskrit": "अस्माभिः निर्मितः पाणिनीय-सदिश-दत्तांशः सर्वथा Hardware-निरपेक्षः अस्ति—अद्य Silicon उपरि, श्वः Neuromorphic, परश्वः च Q...", "description": "Cinematic 16:9 presentation background. Foreground: faint iridescent mathematical curve-lines on a dark surface. Midground: high-dimensional...", "motion": "drift-up"}, {"index": 60, "filename": "images/060_Chunk.jpg", "original": "chunk58_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "An Appreciating National Knowledge Asset for Decades", "subtitle": "Curated Vectors Gain Value Over Decades Instead of Depreciating", "sanskrit": "अयं सज्जीकृतः Vector Corpus आगामि-दशकानां IIT-शोधकेभ्यः राष्ट्राय च शाश्वती संवर्धमाना सम्पत्तिः (Appreciating Asset) अस...", "description": "Cinematic 16:9 presentation background. Foreground: golden secure data-vault panels glowing at the base. Midground: an eternal digital natio...", "motion": "diagonal"}, {"index": 61, "filename": "images/061_Chunk.jpg", "original": "chunk59_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Deterministic RAG Accuracy vs Next-Token Guesses", "subtitle": "Deterministic Evidence Retrieval vs Probabilistic Next-Token Guesses", "sanskrit": "हेतुः २: RAG-समन्विता व्यवस्था स्वायत्त-LLM अपेक्षया शतगुणम् अधिक-यथार्था प्रामाणिकी च वर्तते।", "description": "Cinematic 16:9 presentation background. Foreground: blurry probabilistic hallucination cloud wisps dissolving on the left. Midground compara...", "motion": "zoom-in"}, {"index": 62, "filename": "images/062_Chunk.jpg", "original": "chunk60_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Mathematical Determinism vs Next-Token Gambling", "subtitle": "Replacing Statistical Hallucination with Exact Manuscript Grounding", "sanskrit": "पाणिनीय-व्याकरणं गणितम् अस्ति। १००-कोटि-व्ययेन निर्मितमपि Sanskrit LLM सूत्र-सङ्ख्यासु भाष्य-पङ्क्तिषु च भ्रमं जनयत्येव!", "description": "Cinematic 16:9 presentation background. Foreground: crumbling digital dice fragments on a dark surface. Midground: a pair of translucent dig...", "motion": "pan-right"}, {"index": 63, "filename": "images/063_Chunk.jpg", "original": "chunk61_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Real-Time Scalability: Ingesting Granthas in Seconds", "subtitle": "Instant Vector Ingestion vs Multi-Month Re-Training Cycles", "sanskrit": "यदि अद्य नूतनः ग्रन्थः लभ्यते, LLM कृते पुनः कोटिशः व्ययेन Retraining आवश्यकम्। RAG-पद्धत्या तु PDF-प्रवेशनेन कतिचन क्षण...", "description": "Cinematic 16:9 presentation background. Foreground: a slow, heavy antique hourglass on the left draining sluggishly. Midground velocity cont...", "motion": "zoom-out"}, {"index": 64, "filename": "images/064_Chunk.jpg", "original": "chunk62_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Unlocking Frontier Multilingual AI Reasoning", "subtitle": "Capitalizing on Frontier Trillion-Parameter Multilingual Reasoning", "sanskrit": "हेतुः ३: Google (Gemini), Anthropic (Claude), OpenAI इत्येतादृश-शीर्ष-संस्थाभिः सह तर्क-स्पर्धायाम् असमर्थता तथा Outdate...", "description": "Cinematic 16:9 presentation background. Foreground: faint light-speed interconnect traces at the base. Midground: a solitary modest regional...", "motion": "pan-left"}, {"index": 65, "filename": "images/065_Chunk.jpg", "original": "chunk63_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Frontier Models Pre-trained on Thousands of Granthas", "subtitle": "Leveraging Massive Latent Sanskrit Understanding Already in Global Models", "sanskrit": "Google, Meta, OpenAI इत्यादिभिः Google Books, Wikisource, Archive.org इत्येतेभ्यः सहस्रशः संस्कृत-ग्रन्थाः पूर्वमेव Pre-...", "description": "Cinematic 16:9 presentation background. Foreground: golden manuscript scroll edges submerged within a vast ocean surface. Midground: global ...", "motion": "drift-up"}, {"index": 66, "filename": "images/066_Chunk.jpg", "original": "chunk64_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "The Missing Link: Adding Paninian Grounding", "subtitle": "Providing Deterministic Rule Verification to Unshackle Frontier AI", "sanskrit": "जागतिक-प्रतिरूपेषु केवलं पाणिनीय-निश्चायकतायाः अभावः आसीत्, स च अस्माकं Tier 1 & Tier 2 संरचनया परिह्रियते—अतः पृथक् LLM...", "description": "Cinematic 16:9 presentation background. Foreground: a brilliant flash of golden enlightenment sparks. Midground: a glowing golden precision-...", "motion": "diagonal"}, {"index": 67, "filename": "images/067_Chunk.jpg", "original": "chunk65_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "The Outdated Model Trap: Heavy Compute & Zero Agility", "subtitle": "Small Dedicated Models Fall Behind Global Reasoning Frontiers Instantly", "sanskrit": "यदि कोटिशः व्ययेन अद्य किमपि संस्कृत-प्रतिरूपं निर्मीयेत, तर्हि २-३ वर्षेषु तत् Outdated भविष्यति—तस्मिन् संस्कृत-दत्तां...", "description": "Cinematic 16:9 presentation background. Foreground: rusted steel fragments and locked book-edges in shadow. Midground: an abandoned, rusted ...", "motion": "zoom-in"}, {"index": 68, "filename": "images/068_Chunk.jpg", "original": "chunk66_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Free-Riding Global AI: Continuous Auto-Upgrades", "subtitle": "Automatically Benefiting from Global Advances in Logic and Reasoning", "sanskrit": "RAG-पद्धत्या तु वयं विश्वस्य प्रगततमानां प्रतिरूपाणां वर्धमान-तर्क-शक्तिं विना किमपि व्ययं साक्षात् उपयोक्तुं शक्नुमः—अस...", "description": "Cinematic 16:9 presentation background. Foreground: golden palm-leaf scroll edges resting on an anchored stone base. Midground: an anchored ...", "motion": "pan-right"}, {"index": 69, "filename": "images/069_Chunk.jpg", "original": "chunk67_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Server Hosting Cost Trap vs Open Sustainability", "subtitle": "Avoiding Millions in Ongoing Cloud and GPU Cluster Overhead", "sanskrit": "हेतुः ४: Global AI CapEx Bubble ($300B–$500B+) तथा संस्कृत-क्षेत्रे धन-प्रतिप्राप्तेः (ROI) सर्वथा असम्भवत्वम्।", "description": "Cinematic 16:9 presentation background. Foreground: the base of a calm traditional Indian Gurukula temple structure in warm golden tones. Mi...", "motion": "zoom-out"}, {"index": 70, "filename": "images/070_Chunk.jpg", "original": "chunk68_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "The Server Hosting Trap: Unsustainable GPU Bills", "subtitle": "Open-Source Sustainability vs Crippling Cloud Rental Costs", "sanskrit": "आरम्भे कस्माच्चित् अनुदानात् प्रतिरूपं train कृत्वा अपि, मास-प्रतिमासं लक्षाधिक-व्ययेन GPU-Server-चालनं सर्वथा असम्भवं भ...", "description": "Cinematic 16:9 presentation background. Foreground: a single blinking amber warning light casting eerie glow. Midground: a glowing server ra...", "motion": "pan-left"}, {"index": 71, "filename": "images/071_Chunk.jpg", "original": "chunk69_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Shattering the Vanity Metric: Indigenous Claim vs Utility", "subtitle": "Prioritizing Real Scholarly Accuracy Over Superficial Slogans", "sanskrit": "अस्य पृथक् Sanskrit LLM निर्माणस्य एकमात्रः तथाकथितः 'लाभः'—केवलं 'वयं स्वदेशीयं पृथक् प्रतिरूपं निर्मितवन्तः' इति मिथ्य...", "description": "Cinematic 16:9 presentation background. Foreground: dissolving golden smoke wisps from a fading trophy. Midground: a flashy hollow golden tr...", "motion": "drift-up"}, {"index": 72, "filename": "images/072_Chunk.jpg", "original": "chunk70_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Prudent Strategy: Free-Riding Global Compute", "subtitle": "Investing National Energy into Authentic Curation and Paninian Truth", "sanskrit": "अस्माकं विवेकपूर्णः मार्गः—जागतिक-संस्थानां अनुदानित-Compute-लाभः (Subsidized Global Compute) स्वीक्रियते, सम्पूर्णं धनं...", "description": "Cinematic 16:9 presentation background. Foreground: golden energy conduits channeling resources at the base. Midground: a sleek master key m...", "motion": "diagonal"}, {"index": 73, "filename": "images/073_Chunk.jpg", "original": "chunk71_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Parametric Epistemic Soup (सिद्धान्त-सङ्करः)", "subtitle": "Preventing Irreversible Doctrinal Merging in Hidden Weights", "sanskrit": "हेतुः ५: सिद्धान्त-सङ्कर-दोषः (Parametric Epistemic Soup)! एकस्मिन् Weights Matrix मध्ये अद्वैत-द्वैत-न्याय-दर्शनानि परस...", "description": "Cinematic 16:9 presentation background. Foreground: distinct philosophical colored liquid drops (pure gold, crimson, azure) about to fall. M...", "motion": "zoom-in"}, {"index": 74, "filename": "images/074_Chunk.jpg", "original": "chunk72_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "The Automated Apashabda Factory: Preventing Heresy", "subtitle": "म्लेच्छो ह वा एष यदपशब्दः • Eradicating Corrupted Grammatical Forms", "sanskrit": "महाभाष्य-सम्मतः सङ्कटः—'दुष्टः शब्दः स्वरतो वर्णतो वा हीनो मिथ्याप्रयुक्तः स वाग्वज्रो यजमानं हिनस्ति'। LLM पाणिनीय-अपशब...", "description": "Cinematic 16:9 presentation background. Foreground: jagged pseudo-glyph shard fragments shattering on a stone surface. Midground: a dark mec...", "motion": "pan-right"}, {"index": 75, "filename": "images/075_Chunk.jpg", "original": "chunk73_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Black-Box Forgetting vs 1-Second Vector Patching", "subtitle": "Instant Correction of Erroneous Folios with Zero Retraining Overhead", "sanskrit": "पृथक् Sanskrit LLM मध्ये एकस्य दोषस्य निवारणाय यदा Fine-tuning क्रियते, तदा Catastrophic Forgetting जायते। RAG मध्ये तु ...", "description": "Cinematic 16:9 presentation background. Foreground: a cleanly removed folio being slid into a modular database slot on the right. Midground ...", "motion": "zoom-out"}, {"index": 76, "filename": "images/076_Chunk.jpg", "original": "chunk74_base.jpg", "category": "Act 5: Debunking the Dedicated LLM Myth", "heading": "Architectural Comparison Matrix: Verified RAG vs LLM", "subtitle": "Definitive Comparison of Cost, Accuracy, Verifiability & Lifespan", "sanskrit": "अस्यां सारण्यां स्पष्टं दृश्यते—यथार्थता, व्याकरण-निश्चायकता, आर्थिक-व्ययः, सम्प्रदाय-रक्षा च—सर्वत्र अस्माकं RAG-व्यवस्...", "description": "Cinematic 16:9 presentation background. Foreground: luminous golden checkmark indicators along the bottom row. Midground: a polished executi...", "motion": "pan-left"}, {"index": 77, "filename": "images/077_Chunk.jpg", "original": "chunk75_base.jpg", "category": "Act 6: Technical Pipeline & Vector Search", "heading": "Beyond Keyword Regex: True Semantic Concept Search", "subtitle": "Deep Cross-Lingual Vector Retrieval Across Subtle Shastric Ideas", "sanskrit": "शास्त्रीय-संशोधने केवलं Regex/Keyword Matching पर्याप्तं न भवति। 'आत्मनः अविनाशित्वम्' इत्यस्य अन्वेषणे 'नैनं छिन्दन्ति ...", "description": "Cinematic 16:9 presentation background. Foreground: faint luminous tendril traces reaching across the base. Midground: a researcher's silhou...", "motion": "drift-up"}, {"index": 78, "filename": "images/078_Chunk.jpg", "original": "chunk76_base.jpg", "category": "Act 6: Technical Pipeline & Vector Search", "heading": "Paninian Morphological Pre-Tokenization (98% Precision)", "subtitle": "Sandhi-Splitting and Vibhakti Canonicalization Before Vectorization", "sanskrit": "अस्माभिः Embedding-प्रतिरूपाय पाठ-समर्पणात् पूर्वमेव Tier 1 पाणिनीय-तन्त्रेण पदच्छेदः सन्धि-विश्लेषणं च विधीयते, येन साम...", "description": "Cinematic 16:9 presentation background. Foreground: an ancient compound manuscript line entering from the left. Midground: the compound manu...", "motion": "diagonal"}, {"index": 79, "filename": "images/079_Chunk.jpg", "original": "chunk77_base.jpg", "category": "Act 6: Technical Pipeline & Vector Search", "heading": "Discourse-Aware Chunking: Preserving Debate Structure", "subtitle": "Preserving Purvapaksha (Objection) and Siddhanta (Resolution) Units", "sanskrit": "Discourse-Aware Chunking—सामान्य-AI यथेच्छं पाठं छिन्दति। न्याय-वेदान्ते यदि पूर्वपक्ष-सिद्धान्तयोः मध्ये पाठः छिद्येत, ...", "description": "Cinematic 16:9 presentation background. Foreground: the base of an unbreakable golden logical chain. Midground: two balanced ornate golden a...", "motion": "zoom-in"}, {"index": 80, "filename": "images/080_Chunk.jpg", "original": "chunk78_base.jpg", "category": "Act 6: Technical Pipeline & Vector Search", "heading": "Sutra • Vritti • Bhashya • Tika Boundary Preservation", "subtitle": "Maintaining Multi-Tiered Commentarial Hierarchy in Knowledge Chunks", "sanskrit": "अस्माकं प्रणाल्यां प्रत्येकः खण्डः 'सूत्र-वृत्ति-भाष्य-टीका' इत्येतासां शास्त्रीय-सीमाम् अनुसृत्य अखण्ड-रूपेण संरक्ष्यते...", "description": "Cinematic 16:9 presentation background. Foreground: the polished brass inner ring edge closest to the viewer. Midground: four concentric rin...", "motion": "pan-right"}, {"index": 81, "filename": "images/081_Chunk.jpg", "original": "chunk79_base.jpg", "category": "Act 6: Technical Pipeline & Vector Search", "heading": "Sub-Second Latency: Millisecond Search Across Lakhs", "subtitle": "Instantaneous Vector Retrieval Across Millions of Traditional Pages", "sanskrit": "सदिश-सञ्चये लक्षाधिकाः खण्डाः सन्त्यपि, अस्माकं अनुकूलित-सूचीकरणात् (Optimized Indexing) Within Milliseconds गूढ-भावार्थ...", "description": "Cinematic 16:9 presentation background. Foreground: electric blue and warm gold light particles streaking at high speed. Midground: a glowin...", "motion": "zoom-out"}, {"index": 82, "filename": "images/082_Chunk.jpg", "original": "chunk80_base.jpg", "category": "Act 6: Technical Pipeline & Vector Search", "heading": "1,000x Acceleration of Sanskrit Scholarly Discovery", "subtitle": "Transforming Decades of Manual Archival Searching into Seconds", "sanskrit": "इदं पारम्परिक-पुस्तकालय-गवेषणायाः सहस्रगुणं तीव्रतरं, प्रामाणिकं च वर्तते।", "description": "Cinematic 16:9 presentation background. Foreground: falling sand grains transforming into light at the hourglass waist. Midground: an hourgl...", "motion": "pan-left"}, {"index": 83, "filename": "images/083_Chunk.jpg", "original": "chunk81_base.jpg", "category": "Act 6: Technical Pipeline & Vector Search", "heading": "Eliminating the 70% OCR Correction Burden", "subtitle": "Automating Cleanup so Scholars Can Focus on Deep Philosophical Work", "sanskrit": "अद्यत्वे संस्कृते AI-अनुसन्धानं कर्तुम् इच्छतां ६०–७०% समयः केवलं दोषपूर्ण-OCR-शोधने नश्यति, येन प्रतिभावन्तः युवानः विम...", "description": "Cinematic 16:9 presentation background. Foreground: corrupted document stacks vanishing into thin air. Midground: a young researcher looking...", "motion": "drift-up"}, {"index": 84, "filename": "images/084_Chunk.jpg", "original": "chunk82_base.jpg", "category": "Act 7: Open-Source Academic Release", "heading": "Grand Academic Gift: 100% Free Open Source & Data", "subtitle": "Free and Open Gift of Code, Pipelines and Vectors to Global Academe", "sanskrit": "सम्प्रति श्री-त्रयीविद्या-संशोधनमन्दिरेण सम्पूर्ण-संस्कृत-जगतः, IIT-विश्वविद्यालयानां, तथा विश्व-शोधार्थिनां कल्याणाय अय...", "description": "Cinematic 16:9 presentation background. Foreground: sparkling radiant digital water cascading from the urn. Midground: a magnificent classic...", "motion": "diagonal"}, {"index": 85, "filename": "images/085_Chunk.jpg", "original": "chunk83_base.jpg", "category": "Act 7: Open-Source Academic Release", "heading": "Complete GitHub Repository: Proofreader & Review Portal", "subtitle": "Public Release of Tools, Algorithms and Annotation Environments", "sanskrit": "१. सम्पूर्णा संकेतावली (Complete Source Code)—OCR-समीक्षा-पटलस्य, Algorithmic Proofreading Engine-इत्यस्य, तथा RAG-Pipel...", "description": "Cinematic 16:9 presentation background. Foreground: faint glowing commit-graph node patterns on a dark surface. Midground: an elegant dark d...", "motion": "zoom-in"}, {"index": 86, "filename": "images/086_Chunk.jpg", "original": "chunk84_base.jpg", "category": "Act 7: Open-Source Academic Release", "heading": "Open Shastric Vector Dataset: Ready-to-Use Embeddings", "subtitle": "Lakhs of Clean Embedded Shastric Coordinates for All AI Researchers", "sanskrit": "२. सदिश-दत्तांश-सञ्चयः—लक्षाधिक-श्लोक-भाष्य-सम्बद्धाः सदिश-दत्तांशाः, ये साक्षात् AI-प्रशिक्षणे अनुसन्धाने च प्रयोक्तुं ...", "description": "Cinematic 16:9 presentation background. Foreground: faint free-access link tendrils radiating outward. Midground: a massive open cube of gol...", "motion": "pan-right"}, {"index": 87, "filename": "images/087_Chunk.jpg", "original": "chunk85_base.jpg", "category": "Act 7: Open-Source Academic Release", "heading": "High-Resolution Proofread Digital Folios Donated", "subtitle": "Preserving National Heritage in Open-Access High-Fidelity Format", "sanskrit": "३. पण्डितैः संशोधिताः प्रामाणिकाः ग्रन्थ-पाठाः मुक्ताः, येन भारतीय-संस्कृत-सङ्गणकीय-अनुसन्धानस्य मार्गः निष्कण्टकः भविष्...", "description": "Cinematic 16:9 presentation background. Foreground: the saffron ribbon edge of a bound folio stack closest to the viewer. Midground: a stack...", "motion": "zoom-out"}, {"index": 88, "filename": "images/088_Chunk.jpg", "original": "chunk86_base.jpg", "category": "Act 8: Sacred Bridge & Conclusion", "heading": "A Sacred Bridge: Paninian Rigor Meets Modern AI", "subtitle": "Harmonious Convergence of 500 BCE Grammar and 21st-Century Neural Nets", "sanskrit": "'संशोधन-मन्दिरम्' केवलं सङ्गणकीय-तन्त्रांशः न, अपि तु सहस्र-वर्ष-पुरातनायाः ज्ञान-परम्परायाः आधुनिक-कृत्रिम-बुद्धिमत्तया...", "description": "Cinematic 16:9 presentation background. Foreground: glowing golden smart-city spires on the right. Midground: a majestic illuminated suspens...", "motion": "pan-left"}, {"index": 89, "filename": "images/089_Chunk.jpg", "original": "chunk87_base.jpg", "category": "Act 8: Sacred Bridge & Conclusion", "heading": "Scholar-in-the-Loop Sanctity: Living Vidya Tradition", "subtitle": "Guarding Traditional Shastric Authority in the Age of Computation", "sanskrit": "विद्वत्-समन्वितेन (Scholar-in-the-Loop) शोधनेन प्राचीन-ग्रन्थानां पवित्रता अक्षुण्णा तिष्ठति, यन्त्रं च मर्यादायां वर्तत...", "description": "Cinematic 16:9 presentation background. Foreground: the warm golden glow of a holographic interface surface. Midground: a traditional elder ...", "motion": "drift-up"}, {"index": 90, "filename": "images/090_Chunk.jpg", "original": "chunk88_base.jpg", "category": "Act 8: Sacred Bridge & Conclusion", "heading": "शास्त्रं ज्ञानमयं सत्यं यन्त्रं तस्योपनेत्रवत्", "subtitle": "यथोपनेत्रं काचो वा यन्त्रमन्वेषणे तथा • AI as Spectacles to Sacred Truth", "sanskrit": "यथोपनेत्रं काचो वा यन्त्रमन्वेषणे तथा।\\nशास्त्रं ज्ञानमयं सत्यं यन्त्रं तस्योपनेत्रवत्॥", "description": "Cinematic 16:9 presentation background. Foreground: warm candlelight and golden dust motes drifting gently. Midground: a pair of delicate, e...", "motion": "diagonal"}, {"index": 91, "filename": "images/091_Chunk.jpg", "original": "chunk89_base.jpg", "category": "Act 8: Sacred Bridge & Conclusion", "heading": "AI as Clear Spectacles to Shastric Wisdom", "subtitle": "शास्त्रं ज्ञानमयं सत्यं यन्त्रं तस्योपनेत्रवत् • Machine as an Epistemic Lens", "sanskrit": "यथा नेत्रस्य कृते उपनेत्रं केवलं साधनं, तथैव यन्त्रम्। शास्त्रमेव परमं सत्यम्, AI तु केवलं तस्योपनेत्रवत् साहाय्यकम्। वय...", "description": "Cinematic 16:9 presentation background. Foreground: faint digital network conduit patterns at the base. Midground: cosmic golden calligraphi...", "motion": "zoom-in"}, {"index": 92, "filename": "images/092_Chunk.jpg", "original": "slide1_vedic_ai_vision.jpg", "category": "Executive Slide Deck", "heading": "Vedic AI Vision & Paninian Ground Truth", "subtitle": "Formal Presentation Slide • High-Density Synthesis", "sanskrit": "", "description": "Comprehensive master slide summarizing core engineering specifications.", "motion": "pan-right"}, {"index": 93, "filename": "images/093_Chunk.jpg", "original": "slide2_digital_decay_crisis.jpg", "category": "Executive Slide Deck", "heading": "Digital Decay & The Twin Crises (OCR & Hallucination)", "subtitle": "Formal Presentation Slide • High-Density Synthesis", "sanskrit": "", "description": "Comprehensive master slide summarizing core engineering specifications.", "motion": "zoom-out"}, {"index": 94, "filename": "images/094_Chunk.jpg", "original": "slide3_three_tier_architecture.jpg", "category": "Executive Slide Deck", "heading": "Three-Tier Architectural Framework Overview", "subtitle": "Formal Presentation Slide • High-Density Synthesis", "sanskrit": "", "description": "Comprehensive master slide summarizing core engineering specifications.", "motion": "pan-left"}, {"index": 95, "filename": "images/095_Chunk.jpg", "original": "slide4_vyakarana_kosha_engine.jpg", "category": "Executive Slide Deck", "heading": "Deterministic Vyakarana & Kosha Rule Engine", "subtitle": "Formal Presentation Slide • High-Density Synthesis", "sanskrit": "", "description": "Comprehensive master slide summarizing core engineering specifications.", "motion": "drift-up"}, {"index": 96, "filename": "images/096_Chunk.jpg", "original": "slide5_ingestion_pipeline_flow.jpg", "category": "Executive Slide Deck", "heading": "End-to-End Shastric Ingestion Pipeline Flow", "subtitle": "Formal Presentation Slide • High-Density Synthesis", "sanskrit": "", "description": "Comprehensive master slide summarizing core engineering specifications.", "motion": "diagonal"}, {"index": 97, "filename": "images/097_Chunk.jpg", "original": "slide6_semantic_vector_space.jpg", "category": "Executive Slide Deck", "heading": "Multi-Dimensional Semantic Vector Space & Clustering", "subtitle": "Formal Presentation Slide • High-Density Synthesis", "sanskrit": "", "description": "Comprehensive master slide summarizing core engineering specifications.", "motion": "zoom-in"}, {"index": 98, "filename": "images/098_Chunk.jpg", "original": "slide7_guarded_synthesis_shield.jpg", "category": "Executive Slide Deck", "heading": "Guarded Synthesis & Zero-Hallucination Shield", "subtitle": "Formal Presentation Slide • High-Density Synthesis", "sanskrit": "", "description": "Comprehensive master slide summarizing core engineering specifications.", "motion": "pan-right"}, {"index": 99, "filename": "images/099_Chunk.jpg", "original": "slide8_sanskrit_nlp_tools.jpg", "category": "Executive Slide Deck", "heading": "Integrated Sanskrit NLP Tool Suite Ecosystem", "subtitle": "Formal Presentation Slide • High-Density Synthesis", "sanskrit": "", "description": "Comprehensive master slide summarizing core engineering specifications.", "motion": "zoom-out"}, {"index": 100, "filename": "images/100_Chunk.jpg", "original": "pipeline_stage_1.png", "category": "9-Stage Ingestion Pipeline", "heading": "Document Acquisition & Curation", "subtitle": "Automated Shastric Ingestion & Computational Verification", "sanskrit": "", "description": "Detailed systems engineering flow from source manuscripts to vector embeddings.", "motion": "pan-left"}, {"index": 101, "filename": "images/101_Chunk.jpg", "original": "pipeline_stage_2.png", "category": "9-Stage Ingestion Pipeline", "heading": "Shastric Vision OCR & Layout Analysis", "subtitle": "Automated Shastric Ingestion & Computational Verification", "sanskrit": "", "description": "Detailed systems engineering flow from source manuscripts to vector embeddings.", "motion": "drift-up"}, {"index": 102, "filename": "images/102_Chunk.jpg", "original": "pipeline_stage_3.png", "category": "9-Stage Ingestion Pipeline", "heading": "Morpho-Syntactic Normalization", "subtitle": "Automated Shastric Ingestion & Computational Verification", "sanskrit": "", "description": "Detailed systems engineering flow from source manuscripts to vector embeddings.", "motion": "diagonal"}, {"index": 103, "filename": "images/103_Chunk.jpg", "original": "pipeline_stage_4.png", "category": "9-Stage Ingestion Pipeline", "heading": "Compound Splitting (Samasa-Vigraha)", "subtitle": "Automated Shastric Ingestion & Computational Verification", "sanskrit": "", "description": "Detailed systems engineering flow from source manuscripts to vector embeddings.", "motion": "zoom-in"}, {"index": 104, "filename": "images/104_Chunk.jpg", "original": "pipeline_stage_5.png", "category": "9-Stage Ingestion Pipeline", "heading": "Semantic Chunking & Commentary Binding", "subtitle": "Automated Shastric Ingestion & Computational Verification", "sanskrit": "", "description": "Detailed systems engineering flow from source manuscripts to vector embeddings.", "motion": "pan-right"}, {"index": 105, "filename": "images/105_Chunk.jpg", "original": "pipeline_stage_6.png", "category": "9-Stage Ingestion Pipeline", "heading": "Shastra-Aware Vector Embedding", "subtitle": "Automated Shastric Ingestion & Computational Verification", "sanskrit": "", "description": "Detailed systems engineering flow from source manuscripts to vector embeddings.", "motion": "zoom-out"}, {"index": 106, "filename": "images/106_Chunk.jpg", "original": "pipeline_stage_7.png", "category": "9-Stage Ingestion Pipeline", "heading": "Isolated Sampradaya Namespaces", "subtitle": "Automated Shastric Ingestion & Computational Verification", "sanskrit": "", "description": "Detailed systems engineering flow from source manuscripts to vector embeddings.", "motion": "pan-left"}, {"index": 107, "filename": "images/107_Chunk.jpg", "original": "pipeline_stage_8.png", "category": "9-Stage Ingestion Pipeline", "heading": "Evidence-Constrained RAG Retrieval", "subtitle": "Automated Shastric Ingestion & Computational Verification", "sanskrit": "", "description": "Detailed systems engineering flow from source manuscripts to vector embeddings.", "motion": "drift-up"}, {"index": 108, "filename": "images/108_Chunk.jpg", "original": "pipeline_stage_9.png", "category": "9-Stage Ingestion Pipeline", "heading": "Deterministic Pramana Validation", "subtitle": "Automated Shastric Ingestion & Computational Verification", "sanskrit": "", "description": "Detailed systems engineering flow from source manuscripts to vector embeddings.", "motion": "diagonal"}, {"index": 109, "filename": "images/109_Chunk.jpg", "original": "rag_stage1_pendrive_vault.jpg", "category": "RAG Framework Deep-Dive", "heading": "Portable Offline Shastra Vault (100,000+ Granthas)", "subtitle": "Evidence-Constrained Architecture for Shastric Accuracy", "sanskrit": "", "description": "Architectural schematic showing verified RAG pipeline.", "motion": "zoom-in"}, {"index": 110, "filename": "images/110_Chunk.jpg", "original": "rag_stage2_neural_plugin.jpg", "category": "RAG Framework Deep-Dive", "heading": "Neural Reasoner Plugin Interface (Gemini / Claude / GPT)", "subtitle": "Evidence-Constrained Architecture for Shastric Accuracy", "sanskrit": "", "description": "Architectural schematic showing verified RAG pipeline.", "motion": "pan-right"}, {"index": 111, "filename": "images/111_Chunk.jpg", "original": "rag_stage3_accuracy_pramana.jpg", "category": "RAG Framework Deep-Dive", "heading": "Zero-Hallucination Mathematical Pramana Verification", "subtitle": "Evidence-Constrained Architecture for Shastric Accuracy", "sanskrit": "", "description": "Architectural schematic showing verified RAG pipeline.", "motion": "zoom-out"}, {"index": 112, "filename": "images/112_Chunk.jpg", "original": "full_paper_master_architecture.jpg", "category": "Master Schematics", "heading": "End-to-End Technical System Architecture", "subtitle": "Comprehensive End-to-End System Blueprint", "sanskrit": "", "description": "Technical schematic connecting palm-leaf acquisition, deterministic grammar and neural reasoning.", "motion": "pan-left"}, {"index": 113, "filename": "images/113_Chunk.jpg", "original": "full_paper_master_architecture_4k.jpg", "category": "Master Schematics", "heading": "Complete Shastric AI Systems Architecture", "subtitle": "Ultra-High-Definition Full Systems Engineering Specification", "sanskrit": "", "description": "Complete 4K technical schematic illustrating the entirety of the Samshodhanamandiram framework.", "motion": "drift-up"}, {"index": 114, "filename": "images/114_Chunk.jpg", "original": "poster_hero_centerpiece.jpg", "category": "Poster Centerpiece", "heading": "Paninian Logic Meets Neural Intelligence", "subtitle": "Master Visual Centerpiece from 52nd AIOC Conference Poster", "sanskrit": "", "description": "Sacred Vedic palm leaves merging into holographic neural network lattices.", "motion": "diagonal"}, {"index": 115, "filename": "images/115_Chunk.jpg", "original": "sanskrit_ai_bg.png", "category": "Visual Foundations", "heading": "Vedic Geometry & Quantum Neural Nodes", "subtitle": "Foundational Aesthetic for Computational Sanskrit", "sanskrit": "", "description": "Golden Sanskrit calligraphy dissolving into ethereal digital particle streams.", "motion": "zoom-in"}, {"index": 116, "filename": "images/116_Chunk.jpg", "original": "sanskrit_shastra_ai.png", "category": "Visual Foundations", "heading": "Samshodhanamandiram: Verified Sanskrit AI Framework", "subtitle": "Preserving Vedic Shastras for the AI Millenium", "sanskrit": "", "description": "Unified visual identity combining traditional knowledge with cutting-edge artificial intelligence.", "motion": "pan-right"}, {"index": 117, "filename": "images/117_Chunk.jpg", "original": "chunk90_base.jpg", "category": "Conclusion & Dialogue", "heading": "धन्यवादः • Dhanyavad", "subtitle": "52nd AIOC Haridwar 2026 • Niranjana M Kalale & Charan Govindarajan Tamarapu (Samshodhanamandiram)", "sanskrit": "यथोपनेत्रं काचो वा यन्त्रमन्वेषणे तथा। शास्त्रं ज्ञानमयं सत्यं यन्त्रं तस्योपनेत्रवत्॥", "description": "Sunrise over Haridwar Ghats with sacred temple silhouettes and holographic geometry.", "motion": "zoom-out"}, {"index": 118, "filename": "images/118_Chunk.jpg", "original": "Last Thankyou.png", "category": "Conclusion & Dialogue", "heading": "धन्यवादः • Dhanyavad", "subtitle": "52nd AIOC Haridwar 2026 • Niranjana M Kalale & Charan Govindarajan Tamarapu (Samshodhanamandiram)", "sanskrit": "यथोपनेत्रं काचो वा यन्त्रमन्वेषणे तथा। शास्त्रं ज्ञानमयं सत्यं यन्त्रं तस्योपनेत्रवत्॥", "description": "Sunrise over Haridwar Ghats with sacred temple silhouettes and holographic geometry.", "motion": "pan-left"}, {"index": 119, "filename": "images/119_Chunk.jpg", "original": "rag_comparison_without_rag.jpg", "category": "RAG Ground Truth Case Study", "heading": "Without RAG: Real-World Shastric Hallucination", "subtitle": "Plausible False Attribution to Shabda-Pariccheda • Nyaya Case Study", "sanskrit": "तर्कसंग्रहस्य दीपिकाव्याख्यायाः उपरि प्रणीतायां नीलकण्ठभट्टविरचितायां नीलकण्ठीयप्रकाशिकायां शब्दपरिच्छेदे अस्य वाक्यस्य सटीकः सन्दर्भः... (भ्रान्तोत्तरम्)", "description": "Ungrounded LLMs hallucinate plausible locations based on keyword affinity, falsely attributing Mangalavada statements to Shabda-pariccheda.", "motion": "drift-up"}, {"index": 120, "filename": "images/120_Chunk.jpg", "original": "rag_comparison_with_rag.jpg", "category": "RAG Ground Truth Case Study", "heading": "With RAG: Verified Shastric Ground Truth (Pramana)", "subtitle": "Canonical Resolution of Pratijna & Anumana in Mangalavada • Nilakanthi", "sanskrit": "विधेयकोटिप्रविष्टस्यापि विधेयत्वम् — नीलकण्ठीयप्रकाशिका (तर्कसङ्ग्रहदीपिका-मङ्गलवादः)", "description": "Shastric RAG retrieves verified ground truth from Mangalavada, resolving dialectical discrepancy with 100% precision.", "motion": "diagonal"}];
+    // PRESENTATION ENGINE SCRIPT
+    (function() {
+      const slides = document.querySelectorAll('.slide');
+      const totalSlides = slides.length;
+      let currentIndex = 0;
 
-    // Application State
-    let currentIndex = 0;
-    const totalSlides = SLIDES_DATA.length;
-    let isPlaying = true; // Auto-play enabled by default for exact 7s speech timing
-    const autoPlayInterval = 5000; // Exactly 5 seconds per slide
-    let autoPlayTimer = null;
-    let activeLayerId = 'stage-layer-a';
-    let lastKeypressTime = 0;
-    const KEY_DEBOUNCE_MS = 140;
+      const progressBar = document.getElementById('progress-bar');
+      const counterEl = document.getElementById('slide-indicator');
+      const thumbsModal = document.getElementById('thumbs-modal');
+      const thumbsContainer = document.getElementById('thumbs-grid-container');
+      const notesDrawer = document.getElementById('notes-drawer');
+      const notesBody = document.getElementById('notes-body');
+      const controls = document.getElementById('pres-controls');
 
-    // DOM Elements
-    const layerA = document.getElementById('stage-layer-a');
-    const layerB = document.getElementById('stage-layer-b');
-    const imgA = document.getElementById('img-layer-a');
-    const imgB = document.getElementById('img-layer-b');
-    const textOverlay = document.getElementById('text-overlay');
-    const slideHeading = document.getElementById('slide-heading');
-    const presenterToast = document.getElementById('presenter-toast');
+      // Lightbox & Artwork Mode elements
+      const lightbox = document.getElementById('artwork-lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      const lightboxCaption = document.getElementById('lightbox-caption');
+      const btnCloseLightbox = document.getElementById('btn-close-lightbox');
+      const btnArtMode = document.getElementById('btn-art-mode');
+      const btnZoomArt = document.getElementById('btn-zoom-art');
 
-    // Motion variants map
-    const MOTION_CLASSES = [
-      'motion-zoom-in',
-      'motion-pan-right',
-      'motion-zoom-out',
-      'motion-pan-left',
-      'motion-drift-up',
-      'motion-diagonal'
-    ];
+      window.openLightbox = function(src, caption) {
+        if (!src) return;
+        lightboxImg.src = src;
+        lightboxCaption.textContent = caption || 'Kautilya Arthashastra Historic Artwork';
+        lightbox.classList.add('open');
+      };
 
-    // Image Preloader Cache
-    const preloadedImages = new Set();
-    function preloadImage(url) {
-      if (!url || preloadedImages.has(url)) return;
-      const img = new Image();
-      img.src = url;
-      preloadedImages.add(url);
-    }
-
-    function preloadSurroundings(idx) {
-      for (let offset = 1; offset <= 4; offset++) {
-        const nextIdx = (idx + offset) % totalSlides;
-        preloadImage(SLIDES_DATA[nextIdx].filename);
+      function closeLightbox() {
+        lightbox.classList.remove('open');
       }
-      const prevIdx = (idx - 1 + totalSlides) % totalSlides;
-      preloadImage(SLIDES_DATA[prevIdx].filename);
-    }
 
-    // Initialize presentation
-    function init() {
-      // Setup initial image on Layer A
-      const initialSlide = SLIDES_DATA[0];
-      imgA.src = initialSlide.filename;
-      layerA.className = 'stage-layer active ' + (initialSlide.motion ? 'motion-' + initialSlide.motion : MOTION_CLASSES[0]);
-      
-      updateText(initialSlide, false);
-      preloadSurroundings(0);
-      setupAmbientParticles();
-      setupIdleCursor();
-      startAutoPlay();
-    }
-
-    // Transition to a target slide with flawless crossfade
-    function goToSlide(targetIdx) {
-      if (targetIdx === currentIndex) return;
-      
-      // Wrap around bounds
-      targetIdx = (targetIdx + totalSlides) % totalSlides;
-
-      const outgoingLayer = activeLayerId === 'stage-layer-a' ? layerA : layerB;
-      const incomingLayer = activeLayerId === 'stage-layer-a' ? layerB : layerA;
-      const incomingImg = activeLayerId === 'stage-layer-a' ? imgB : imgA;
-
-      const nextSlide = SLIDES_DATA[targetIdx];
-      const motionClass = nextSlide.motion ? 'motion-' + nextSlide.motion : MOTION_CLASSES[targetIdx % MOTION_CLASSES.length];
-
-      // Reset incoming layer motion so animation restarts fresh
-      incomingLayer.className = 'stage-layer';
-      incomingImg.src = nextSlide.filename;
-
-      // Force DOM reflow to apply new animation smoothly
-      void incomingLayer.offsetWidth;
-
-      // Begin crossfade
-      incomingLayer.className = 'stage-layer active ' + motionClass;
-      outgoingLayer.className = 'stage-layer outgoing';
-
-      activeLayerId = incomingLayer.id;
-      currentIndex = targetIdx;
-
-      // Update plain text
-      updateText(nextSlide, true);
-      preloadSurroundings(targetIdx);
-
-      // Clean up outgoing layer after crossfade duration
-      setTimeout(() => {
-        if (outgoingLayer.className.includes('outgoing')) {
-          outgoingLayer.className = 'stage-layer';
-        }
-      }, 700);
-
-      if (isPlaying) {
-        resetAutoPlay();
-      }
-    }
-
-    // Update Plain Text Content with Smooth Fade
-    function updateText(slide, animate = true) {
-      if (animate) {
-        textOverlay.classList.add('text-animating');
-        setTimeout(() => {
-          slideHeading.textContent = slide.heading;
-          textOverlay.classList.remove('text-animating');
-        }, 130);
-      } else {
-        slideHeading.textContent = slide.heading;
-      }
-    }
-
-    // Next / Previous Helpers (Smooth right arrow handling)
-    function nextSlide() {
-      if (currentIndex >= totalSlides - 1) {
-        pauseAutoPlay();
-        return;
-      }
-      goToSlide(currentIndex + 1);
-    }
-
-    function prevSlide() {
-      goToSlide(currentIndex - 1);
-    }
-
-    // Auto-Play Timer (7-second continuous pacing)
-    function startAutoPlay() {
-      isPlaying = true;
-      resetAutoPlay();
-    }
-
-    function pauseAutoPlay() {
-      isPlaying = false;
-      clearTimeout(autoPlayTimer);
-    }
-
-    function resetAutoPlay() {
-      clearTimeout(autoPlayTimer);
-      if (isPlaying) {
-        autoPlayTimer = setTimeout(() => {
-          nextSlide();
-        }, autoPlayInterval);
-      }
-    }
-
-    function toggleAutoPlay() {
-      if (isPlaying) {
-        pauseAutoPlay();
-      } else {
-        startAutoPlay();
-      }
-    }
-
-    // Toast Feedback (Silenced for clean distraction-free presentation)
-    function showToast(msg) {
-      // Kept clean without intrusive popups
-    }
-
-    // Fullscreen Toggle
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().then(() => showToast('Fullscreen ON')).catch(err => console.log(err));
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen().then(() => showToast('Fullscreen OFF'));
-        }
-      }
-    }
-
-    // Click Zones (Click right 75% = Next, Click left 25% = Prev)
-    document.getElementById('click-zone-right').addEventListener('click', nextSlide);
-    document.getElementById('click-zone-left').addEventListener('click', prevSlide);
-
-    // Double click to toggle Fullscreen
-    window.addEventListener('dblclick', toggleFullscreen);
-
-    // Keyboard Navigation (Presenter remote clickers send Right/PageDown, Left/PageUp, etc.)
-    window.addEventListener('keydown', (e) => {
-      const now = performance.now();
-      if (now - lastKeypressTime < KEY_DEBOUNCE_MS) {
-        return; // Debounce rapid key hammering
-      }
-      lastKeypressTime = now;
-
-      switch (e.key) {
-        case 'ArrowRight':
-        case 'PageDown':
-        case 'KeyD':
-        case 'Enter':
-          e.preventDefault();
-          nextSlide();
-          break;
-        case 'ArrowLeft':
-        case 'PageUp':
-        case 'KeyA':
-        case 'Backspace':
-          e.preventDefault();
-          prevSlide();
-          break;
-        case ' ':
-          e.preventDefault();
-          nextSlide(); // In presenter mode, space typically advances slide
-          break;
-        case 'KeyP':
-          e.preventDefault();
-          toggleAutoPlay();
-          break;
-        case 'KeyF':
-          e.preventDefault();
-          toggleFullscreen();
-          break;
-        case 'KeyT':
-          e.preventDefault();
-          // Toggle text visibility
-          if (textOverlay.style.display === 'none') {
-            textOverlay.style.display = 'block';
-            showToast('Text Visible');
-          } else {
-            textOverlay.style.display = 'none';
-            showToast('Text Hidden');
-          }
-          break;
-        case 'Home':
-          e.preventDefault();
-          goToSlide(0);
-          break;
-        case 'End':
-          e.preventDefault();
-          goToSlide(totalSlides - 1);
-          break;
-      }
-    });
-
-    // Touch Swipe Navigation for mobile & tablet
-    let touchStartX = 0;
-    let touchStartY = 0;
-    window.addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-      touchStartY = e.changedTouches[0].screenY;
-    }, { passive: true });
-
-    window.addEventListener('touchend', (e) => {
-      const diffX = e.changedTouches[0].screenX - touchStartX;
-      const diffY = e.changedTouches[0].screenY - touchStartY;
-      if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
-        if (diffX < 0) {
-          nextSlide();
-        } else {
-          prevSlide();
-        }
-      }
-    }, { passive: true });
-
-    // Auto-hide cursor when idle (2 seconds)
-    function setupIdleCursor() {
-      let idleTimer = null;
-      function onActivity() {
-        document.body.classList.remove('idle-cursor');
-        clearTimeout(idleTimer);
-        idleTimer = setTimeout(() => {
-          document.body.classList.add('idle-cursor');
-        }, 2000);
-      }
-      window.addEventListener('mousemove', onActivity);
-      window.addEventListener('mousedown', onActivity);
-      window.addEventListener('keydown', onActivity);
-      onActivity();
-    }
-
-    // Ambient Stardust Particles
-    function setupAmbientParticles() {
-      const canvas = document.getElementById('ambient-canvas');
-      const ctx = canvas.getContext('2d');
-      let width = canvas.width = window.innerWidth;
-      let height = canvas.height = window.innerHeight;
-
-      window.addEventListener('resize', () => {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
+      btnCloseLightbox.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox || e.target.classList.contains('lightbox-img-box')) closeLightbox();
       });
 
-      const particleCount = 24;
-      const particles = [];
-      for (let i = 0; i < particleCount; i++) {
+      function openCurrentSlideArtwork() {
+        const activeSlide = slides[currentIndex];
+        const mediaImg = activeSlide.querySelector('.slide-bg-media');
+        if (mediaImg) {
+          const title = activeSlide.querySelector('.slide-title-sanskrit')?.textContent || 'Slide ' + (currentIndex + 1);
+          window.openLightbox(mediaImg.src, `${title} — Visual Artwork`);
+        }
+      }
+
+      function toggleArtSpotlight() {
+        document.body.classList.toggle('art-spotlight');
+        const isActive = document.body.classList.contains('art-spotlight');
+        btnArtMode.style.background = isActive ? 'rgba(240, 192, 90, 0.4)' : '';
+        btnArtMode.style.boxShadow = isActive ? '0 0 12px rgba(240, 192, 90, 0.6)' : '';
+      }
+
+      btnArtMode.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleArtSpotlight();
+      });
+
+      btnZoomArt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openCurrentSlideArtwork();
+      });
+
+      // Populate Thumbnails Drawer with visual image banner
+      slides.forEach((slide, i) => {
+        const titleEl = slide.querySelector('.slide-title-sanskrit') || slide.querySelector('h1');
+        const engEl = slide.querySelector('.slide-title-english') || slide.querySelector('p');
+        const bgImg = slide.querySelector('.slide-bg-media')?.getAttribute('src');
+        const card = document.createElement('div');
+        card.className = `thumb-card ${i === 0 ? 'active' : ''}`;
+        card.innerHTML = `
+          ${bgImg ? `<div style="height: 54px; border-radius: 6px; overflow: hidden; margin-bottom: 6px; border: 1px solid rgba(212, 175, 55, 0.3);"><img src="${bgImg}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9;"></div>` : ''}
+          <div class="thumb-num">SLIDE ${String(i + 1).padStart(2, '0')}</div>
+          <div class="thumb-title">${titleEl ? titleEl.textContent.trim() : 'Slide ' + (i+1)}</div>
+          <div style="font-size: 0.72rem; color: #94a3b8;">${engEl ? engEl.textContent.trim() : ''}</div>
+        `;
+        card.addEventListener('click', () => {
+          goToSlide(i);
+          thumbsModal.classList.remove('open');
+        });
+        thumbsContainer.appendChild(card);
+      });
+
+      // Update Slide State
+      function updateSlide(newIndex) {
+        if (newIndex < 0 || newIndex >= totalSlides) return;
+
+        currentIndex = newIndex;
+
+        slides.forEach((s, idx) => {
+          if (idx === newIndex) {
+            s.classList.remove('prev');
+            s.classList.add('active');
+          } else {
+            s.classList.remove('active');
+            if (idx < newIndex) {
+              s.classList.add('prev');
+            } else {
+              s.classList.remove('prev');
+            }
+          }
+        });
+
+        // Update Progress Bar
+        const progress = ((currentIndex + 1) / totalSlides) * 100;
+        progressBar.style.width = `${progress}%`;
+
+        // Update Counter
+        counterEl.textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+
+        // Update Thumbnails active state
+        document.querySelectorAll('.thumb-card').forEach((tc, idx) => {
+          tc.classList.toggle('active', idx === currentIndex);
+        });
+
+        // Update Notes
+        const activeSlide = slides[currentIndex];
+        const notes = activeSlide.getAttribute('data-notes') || 'No specific cue for this slide.';
+        const audioQuote = activeSlide.querySelector('.audio-note-box span:last-child');
+        
+        notesBody.innerHTML = `
+          <div>
+            <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--gold-primary); font-weight: 700;">Slide ${currentIndex + 1} Spoken Topic</span>
+            <div style="font-weight: 600; margin-top: 4px; color: #fff;">${activeSlide.querySelector('.slide-title-sanskrit')?.textContent || 'Title'}</div>
+          </div>
+          ${audioQuote ? `<div class="notes-quote"><strong>Audio Spoken Anchor:</strong><br>${audioQuote.textContent}</div>` : ''}
+          <div>
+            <span style="font-size: 0.78rem; text-transform: uppercase; color: var(--gold-primary); font-weight: 700;">Rehearsal Guide & Academic Context</span>
+            <p style="margin-top: 6px; color: #cbd5e1;">${notes}</p>
+          </div>
+        `;
+      }
+
+      function nextSlide() { updateSlide(currentIndex + 1); }
+      function prevSlide() { updateSlide(currentIndex - 1); }
+      function goToSlide(idx) { updateSlide(idx); }
+
+      // Button listeners
+      document.getElementById('btn-next').addEventListener('click', (e) => { e.stopPropagation(); nextSlide(); });
+      document.getElementById('btn-prev').addEventListener('click', (e) => { e.stopPropagation(); prevSlide(); });
+      document.getElementById('click-right').addEventListener('click', nextSlide);
+      document.getElementById('click-left').addEventListener('click', prevSlide);
+
+      // Fullscreen Toggle
+      document.getElementById('btn-fullscreen').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      // Modals
+      document.getElementById('btn-thumbs').addEventListener('click', (e) => {
+        e.stopPropagation();
+        thumbsModal.classList.toggle('open');
+      });
+      document.getElementById('btn-close-thumbs').addEventListener('click', () => thumbsModal.classList.remove('open'));
+
+      document.getElementById('btn-notes').addEventListener('click', (e) => {
+        e.stopPropagation();
+        notesDrawer.classList.toggle('open');
+      });
+      document.getElementById('btn-close-notes').addEventListener('click', () => notesDrawer.classList.remove('open'));
+
+      // Keyboard shortcuts
+      window.addEventListener('keydown', (e) => {
+        if (lightbox.classList.contains('open')) {
+          if (e.key === 'Escape') closeLightbox();
+          return;
+        }
+        if (thumbsModal.classList.contains('open')) {
+          if (e.key === 'Escape') thumbsModal.classList.remove('open');
+          return;
+        }
+
+        switch(e.key) {
+          case 'ArrowRight':
+          case 'ArrowDown':
+          case ' ':
+          case 'PageDown':
+            e.preventDefault();
+            nextSlide();
+            break;
+          case 'ArrowLeft':
+          case 'ArrowUp':
+          case 'Backspace':
+          case 'PageUp':
+            e.preventDefault();
+            prevSlide();
+            break;
+          case 'Home':
+            e.preventDefault();
+            goToSlide(0);
+            break;
+          case 'End':
+            e.preventDefault();
+            goToSlide(totalSlides - 1);
+            break;
+          case 'f':
+          case 'F':
+            if (!document.fullscreenElement) {
+              document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+              document.exitFullscreen().catch(() => {});
+            }
+            break;
+          case 'v':
+          case 'V':
+          case 'i':
+          case 'I':
+            toggleArtSpotlight();
+            break;
+          case 'z':
+          case 'Z':
+            openCurrentSlideArtwork();
+            break;
+          case 't':
+          case 'T':
+            thumbsModal.classList.toggle('open');
+            break;
+          case 'n':
+          case 'N':
+            notesDrawer.classList.toggle('open');
+            break;
+          case 'Escape':
+            closeLightbox();
+            thumbsModal.classList.remove('open');
+            notesDrawer.classList.remove('open');
+            break;
+        }
+      });
+
+      // Auto-hide controller on idle cursor
+      let idleTimeout;
+      function resetIdleTimer() {
+        controls.classList.remove('hidden');
+        clearTimeout(idleTimeout);
+        idleTimeout = setTimeout(() => {
+          controls.classList.add('hidden');
+        }, 4000);
+      }
+      window.addEventListener('mousemove', resetIdleTimer);
+      window.addEventListener('click', resetIdleTimer);
+      resetIdleTimer();
+
+      // Ambient Floating Golden Particles Canvas
+      const canvas = document.getElementById('ambient-canvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      for (let i = 0; i < 45; i++) {
         particles.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          radius: Math.random() * 2.0 + 0.8,
-          speedY: -(Math.random() * 0.35 + 0.15),
-          speedX: (Math.random() - 0.5) * 0.25,
-          alpha: Math.random() * 0.5 + 0.2,
-          pulse: Math.random() * 0.02 + 0.01
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.8 + 0.6,
+          speedY: -(Math.random() * 0.4 + 0.15),
+          speedX: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.5 + 0.2
         });
       }
 
-      function drawParticles() {
-        ctx.clearRect(0, 0, width, height);
+      function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffd700';
+
         particles.forEach(p => {
-          p.y += p.speedY;
-          p.x += p.speedX;
-          p.alpha += Math.sin(p.pulse) * 0.006;
-
-          if (p.y < -10) {
-            p.y = height + 10;
-            p.x = Math.random() * width;
-          }
-          if (p.x < 0) p.x = width;
-          if (p.x > width) p.x = 0;
-
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(245, 176, 65, ${Math.max(0.1, Math.min(0.8, p.alpha))})`;
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = '#f5b041';
+          ctx.globalAlpha = p.opacity;
           ctx.fill();
+
+          p.y += p.speedY;
+          p.x += p.speedX;
+
+          if (p.y < 0) {
+            p.y = canvas.height + 10;
+            p.x = Math.random() * canvas.width;
+          }
         });
 
-        requestAnimationFrame(drawParticles);
+        requestAnimationFrame(animateParticles);
       }
+      animateParticles();
 
-      requestAnimationFrame(drawParticles);
-    }
-
-    // Run on load
-    window.addEventListener('DOMContentLoaded', init);
+      // Initial Call
+      updateSlide(0);
+    })();
   </script>
 </body>
 </html>
